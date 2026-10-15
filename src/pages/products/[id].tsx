@@ -7,7 +7,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { motion } from "framer-motion";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   ShoppingCart, 
   Heart, 
@@ -22,14 +25,18 @@ import {
   RefreshCw,
   Award,
   MessageCircle,
-  ChevronRight,
-  Sparkles,
-  Zap
+  Play,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+  Zap,
+  Phone,
+  FileCheck
 } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
-import { productService, Product } from "@/services/productService";
+import { productService, Product, ProductReview } from "@/services/productService";
 
 // Memoized Related Product Card
 const RelatedProductCard = React.memo(({ product }: { product: Product }) => (
@@ -41,10 +48,10 @@ const RelatedProductCard = React.memo(({ product }: { product: Product }) => (
     className="group"
   >
     <Link href={`/products/${product.id}`}>
-      <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 bg-white/80 backdrop-blur-sm border border-white/50 h-full">
-        <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+      <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 bg-card border border-border h-full rounded-2xl">
+        <div className="relative aspect-square overflow-hidden bg-muted">
           <Image
-            src={product.images?.[0] || "https://images.pexels.com/photos/356036/pexels-photo-356036.jpeg"}
+            src={product.images?.[0] || "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=800&q=80"}
             alt={product.name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -53,27 +60,27 @@ const RelatedProductCard = React.memo(({ product }: { product: Product }) => (
             quality={75}
           />
           {product.discountedPrice && (
-            <Badge className="absolute top-2 right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs shadow-lg">
+            <Badge className="absolute top-2 right-2 bg-brand-red text-white text-xs shadow-sm font-bold">
               SALE
             </Badge>
           )}
         </div>
         <CardContent className="p-4">
-          <h3 className="font-semibold text-sm lg:text-base mb-2 text-gray-800 line-clamp-2 group-hover:text-orange-600 transition-colors">
+          <h3 className="font-semibold text-sm lg:text-base mb-2 text-foreground line-clamp-2 group-hover:text-brand-red transition-colors">
             {product.name}
           </h3>
           <div className="flex items-center gap-2">
             {product.discountedPrice ? (
               <>
-                <span className="text-orange-600 font-bold text-sm lg:text-base">
+                <span className="text-brand-red font-bold text-sm lg:text-base">
                   ₦{product.discountedPrice.toLocaleString()}
                 </span>
-                <span className="text-gray-500 line-through text-xs lg:text-sm">
+                <span className="text-muted-foreground line-through text-xs lg:text-sm">
                   ₦{product.price.toLocaleString()}
                 </span>
               </>
             ) : (
-              <span className="text-orange-600 font-bold text-sm lg:text-base">
+              <span className="text-brand-red font-bold text-sm lg:text-base">
                 ₦{product.price.toLocaleString()}
               </span>
             )}
@@ -94,6 +101,21 @@ export default function ProductPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [reviews, setReviews] = useState<ProductReview[]>([]);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [activeVideoModal, setActiveVideoModal] = useState<string | null>(null);
+
+  // Review form state
+  const [reviewForm, setReviewForm] = useState({
+    rating: 5,
+    userName: "",
+    userEmail: "",
+    title: "",
+    comment: ""
+  });
+  const [hoverRating, setHoverRating] = useState(0);
+
   const { addToCart } = useCart();
   const { addToWishlist, isInWishlist } = useWishlist();
 
@@ -116,6 +138,10 @@ export default function ProductPage() {
         }
         
         setProduct(productData);
+
+        // Load reviews
+        const revs = await productService.getProductReviews(id as string);
+        if (mounted) setReviews(revs);
         
         if (productData.category) {
           const categoryProducts = await productService.getProductsByCategory(productData.category, 4);
@@ -128,13 +154,9 @@ export default function ProductPage() {
         }
       } catch (error) {
         console.error('Error fetching product:', error);
-        if (mounted) {
-          toast.error('Failed to load product details');
-        }
+        if (mounted) toast.error('Failed to load product details');
       } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+        if (mounted) setLoading(false);
       }
     };
 
@@ -179,12 +201,12 @@ export default function ProductPage() {
     
     toast.success(`${product.name} added to wishlist`);
   }, [product, addToWishlist]);
-  
+
   const handleShare = useCallback(async () => {
     if (!product) return;
     
     try {
-      if (navigator.share && navigator.canShare()) {
+      if (typeof navigator !== "undefined" && navigator.share && navigator.canShare()) {
         await navigator.share({
           title: product.name,
           text: product.description,
@@ -195,484 +217,701 @@ export default function ProductPage() {
         await navigator.clipboard.writeText(window.location.href);
         toast.success("Link copied to clipboard");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to share");
     }
   }, [product]);
 
-  const calculateDiscount = useMemo(() => {
-    if (!product?.discountedPrice) return 0;
-    return Math.round(((product.price - product.discountedPrice) / product.price) * 100);
-  }, [product]);
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewForm.userName.trim() || !reviewForm.comment.trim()) {
+      toast.error("Please provide your name and a written comment.");
+      return;
+    }
+
+    try {
+      setIsSubmittingReview(true);
+      await productService.submitProductReview(product?.id || (id as string), {
+        rating: reviewForm.rating,
+        userName: reviewForm.userName,
+        userEmail: reviewForm.userEmail,
+        title: reviewForm.title || `${reviewForm.rating}-Star Review`,
+        comment: reviewForm.comment
+      });
+
+      // Optimistic update
+      const newRev: ProductReview = {
+        id: `rev-${Date.now()}`,
+        productId: product?.id || (id as string),
+        rating: reviewForm.rating,
+        userName: reviewForm.userName,
+        userEmail: reviewForm.userEmail,
+        title: reviewForm.title || `${reviewForm.rating}-Star Review`,
+        comment: reviewForm.comment,
+        verified: true,
+        createdAt: "Just now"
+      };
+      setReviews(prev => [newRev, ...prev]);
+
+      toast.success("Thank you! Your rating and review have been published.");
+      setIsReviewModalOpen(false);
+      setReviewForm({
+        rating: 5,
+        userName: "",
+        userEmail: "",
+        title: "",
+        comment: ""
+      });
+    } catch (err) {
+      toast.error("Could not post review. Please try again.");
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
+
+  const openBulkQuoteWhatsApp = () => {
+    if (!product) return;
+    const msg = `Hello CeC Ayigo, I would like to request bulk contractor pricing for: ${product.name} (SKU: ${product.id}). Current Listed Price: ₦${(product.discountedPrice || product.price).toLocaleString()}. Please send wholesale terms.`;
+    window.open(`https://wa.me/2348147254399?text=${encodeURIComponent(msg)}`, "_blank");
+  };
 
   const productImages = useMemo(() => 
-    product?.images?.length ? product.images : ["https://images.pexels.com/photos/356036/pexels-photo-356036.jpeg"],
+    product?.images?.length ? product.images : ["https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=800&q=80"],
     [product]
   );
   
   const productFeatures = useMemo(() => 
     product?.features || [
-      "High-quality product",
-      "Durable construction", 
-      "Easy to use",
-      "Excellent value"
+      "Engineered for Nigerian Grid Conditions",
+      "Robust anti-surge internal driver protection",
+      "High thermal dissipation housing",
+      "Official CeC Ayigo Warranty Included"
     ],
     [product]
   );
-  
+
   const productSpecifications = useMemo(() => 
     product?.specifications || {
-      "Material": "Premium quality",
-      "Dimensions": "Standard size", 
-      "Weight": "Standard weight",
-      "Warranty": "1 year"
+      "Brand": "CeC Ayigo",
+      "Voltage Rating": "220V - 240V AC",
+      "Warranty": "2 Years CeC Support",
+      "Showroom Testing": "Available at Alaba International Market, Lagos"
     },
     [product]
   );
 
+  // Compute average rating from actual reviews
+  const avgRating = useMemo(() => {
+    if (!reviews.length) return product?.rating || 4.8;
+    const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
+    return Number((sum / reviews.length).toFixed(1));
+  }, [reviews, product]);
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading product...</p>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 border-4 border-brand-red border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-muted-foreground font-medium text-sm">Inspecting CeC Product Details...</p>
         </div>
       </div>
     );
   }
 
-  if (!product) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
-        <div className="text-center">
-          <p className="text-xl text-gray-600 mb-4">Product not found</p>
-          <Button 
-            onClick={() => router.push("/products")}
-            className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white"
-          >
-            Back to Products
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  if (!product) return null;
 
   return (
     <>
       <Head>
-        <title>{product.name} | AYIGO - Premium Solar Solutions</title>
-        <meta name="description" content={product.description?.substring(0, 160) || `Details for ${product.name}`} />
-        <meta name="keywords" content={`${product.name}, ${product.category}, solar products`} />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-        <link rel="preconnect" href="https://images.pexels.com" />
+        <title>{product.name} - Pricing, Specs & Guides | CeC Ayigo</title>
+        <meta name="description" content={product.description} />
       </Head>
 
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 relative overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute inset-0 pointer-events-none opacity-30">
-          <motion.div
-            animate={{ x: [0, 30, 0], y: [0, -30, 0] }}
-            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-20 right-10 w-64 h-64 md:w-96 md:h-96 bg-gradient-to-r from-purple-200/30 to-pink-200/30 rounded-full blur-3xl"
-          />
-          <motion.div
-            animate={{ x: [0, -30, 0], y: [0, 30, 0] }}
-            transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute bottom-20 left-10 w-64 h-64 md:w-96 md:h-96 bg-gradient-to-r from-orange-200/30 to-yellow-200/30 rounded-full blur-3xl"
-          />
-        </div>
+      <div className="min-h-screen bg-background py-6 md:py-12">
+        <div className="container mx-auto px-4 max-w-6xl">
+          
+          {/* Breadcrumbs & Navigation */}
+          <div className="flex items-center justify-between mb-6">
+            <Link 
+              href="/products" 
+              className="inline-flex items-center gap-2 text-xs md:text-sm text-gray-700 hover:text-brand-red font-medium transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Catalog
+            </Link>
 
-        {/* Breadcrumb */}
-        <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-20">
-          <div className="container mx-auto px-4 py-3">
-            <div className="flex items-center space-x-2 text-xs md:text-sm text-gray-600 overflow-x-auto scrollbar-hide">
-              <Link href="/" className="hover:text-orange-500 whitespace-nowrap transition-colors">Home</Link>
-              <ChevronRight className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-              <Link href="/products" className="hover:text-orange-500 whitespace-nowrap transition-colors">Products</Link>
-              <ChevronRight className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-              <Link href={`/products?category=${product.category}`} className="hover:text-orange-500 capitalize whitespace-nowrap transition-colors">
-                {product.category}
-              </Link>
-              <ChevronRight className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-              <span className="text-gray-900 truncate font-medium">{product.name}</span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleAddToWishlist}
+                className="h-8 px-3 border-border bg-card text-foreground/80 hover:text-brand-red rounded-full text-xs"
+              >
+                <Heart className={`h-3.5 w-3.5 mr-1 ${isInWishlist(product.id) ? "fill-brand-red text-brand-red" : ""}`} />
+                Wishlist
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleShare}
+                className="h-8 px-3 border-border bg-card text-foreground/80 hover:text-brand-red rounded-full text-xs"
+              >
+                <Share2 className="h-3.5 w-3.5 mr-1" />
+                Share
+              </Button>
             </div>
           </div>
-        </div>
 
-        <div className="container mx-auto px-4 py-4 md:py-6 lg:py-8 relative z-10">
-          {/* Back Button */}
-          <Button 
-            variant="ghost" 
-            className="mb-4 md:mb-6 flex items-center gap-2 text-gray-600 hover:text-orange-500 hover:bg-orange-50 p-0 h-auto"
-            onClick={() => router.back()}
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span className="text-sm md:text-base">Back</span>
-          </Button>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
-            {/* Product Images */}
+          {/* Main Product Showcase Card */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 bg-card rounded-3xl p-6 md:p-10 border border-border shadow-sm">
+            
+            {/* Left: Product Images Gallery */}
             <div className="space-y-4">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-                className="relative"
-              >
-                <div className="relative aspect-square rounded-2xl overflow-hidden bg-white/80 backdrop-blur-sm border border-white/50 shadow-lg">
-                  <Image
-                    src={productImages[selectedImage]}
-                    alt={product.name}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    className="object-contain p-4 md:p-8 transition-all duration-500"
-                    priority
-                    quality={85}
-                  />
-                  
-                  {/* Badges */}
-                  <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
-                    {product.discountedPrice && (
-                      <Badge className="bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg text-xs">
-                        -{calculateDiscount}% OFF
-                      </Badge>
-                    )}
-                    {!product.inStock && (
-                      <Badge className="bg-gray-900 text-white text-xs">
-                        Out of Stock
-                      </Badge>
-                    )}
-                  </div>
+              <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted border border-border">
+                <Image
+                  src={productImages[selectedImage]}
+                  alt={product.name}
+                  fill
+                  priority
+                  className="object-contain p-6"
+                />
+                {product.discountedPrice && (
+                  <Badge className="absolute top-4 right-4 bg-brand-red text-white text-xs font-bold px-3 py-1 shadow-sm">
+                    {Math.round(((product.price - product.discountedPrice) / product.price) * 100)}% OFF
+                  </Badge>
+                )}
+              </div>
 
-                  {/* Action Buttons */}
-                  <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
-                    <Button 
-                      variant="secondary" 
-                      size="icon" 
-                      className="rounded-full w-9 h-9 md:w-10 md:h-10 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl hover:scale-105 transition-all"
-                      onClick={handleAddToWishlist}
-                    >
-                      <Heart className={`h-4 w-4 ${isInWishlist(product.id) ? 'text-red-500 fill-current' : 'text-gray-600'}`} />
-                    </Button>
-                    <Button 
-                      variant="secondary" 
-                      size="icon" 
-                      className="rounded-full w-9 h-9 md:w-10 md:h-10 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl hover:scale-105 transition-all"
-                      onClick={handleShare}
-                    >
-                      <Share2 className="h-4 w-4 text-gray-600" />
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Thumbnail Images */}
               {productImages.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
-                  {productImages.map((image, index) => (
+                <div className="flex gap-3 overflow-x-auto pb-2">
+                  {productImages.map((img, i) => (
                     <button
-                      key={index}
-                      className={`relative flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-2 transition-all duration-200 ${
-                        selectedImage === index 
-                          ? 'border-orange-500 shadow-md scale-105 ring-2 ring-orange-200' 
-                          : 'border-gray-200 hover:border-orange-300'
+                      key={i}
+                      onClick={() => setSelectedImage(i)}
+                      className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 bg-muted transition-all ${
+                        selectedImage === i ? "border-brand-red ring-2 ring-brand-red/20" : "border-border opacity-70 hover:opacity-100"
                       }`}
-                      onClick={() => setSelectedImage(index)}
                     >
-                      <Image
-                        src={image}
-                        alt={`${product.name} - View ${index + 1}`}
-                        fill
-                        sizes="80px"
-                        className="object-contain p-1"
-                        loading="lazy"
-                        quality={60}
-                      />
+                      <Image src={img} alt={`View ${i + 1}`} fill className="object-contain p-2" />
                     </button>
                   ))}
                 </div>
               )}
-            </div>
 
-            {/* Product Details */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="space-y-4 md:space-y-6"
-            >
-              {/* Rating and Reviews */}
-              <div className="flex items-center gap-3 md:gap-4 flex-wrap">
-                <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star 
-                      key={i} 
-                      className={`h-3.5 w-3.5 md:h-4 md:w-4 ${i < Math.floor(product.rating || 4.5) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
-                    />
-                  ))}
-                  <span className="ml-1 text-sm font-semibold text-gray-700">
-                    {product.rating || 4.5}
-                  </span>
-                </div>
-                <span className="text-xs md:text-sm text-gray-500">
-                  ({product.reviewCount || 0} reviews)
+              {/* Showroom Verification Note */}
+              <div className="bg-muted border border-border rounded-xl p-3.5 flex items-center gap-3 text-xs text-gray-700">
+                <Shield className="h-5 w-5 text-brand-red flex-shrink-0" />
+                <span>
+                  <strong>100% Authentic Product:</strong> Tested and verified by CeC Ayigo technicians at Alaba International Market, Lagos.
                 </span>
               </div>
+            </div>
 
-              {/* Product Title */}
-              <div>
-                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-2 leading-tight">
-                  {product.name}
-                </h1>
-                <p className="text-gray-600 text-xs md:text-sm">
-                  SKU: {product.id}
-                </p>
+            {/* Right: Pricing, Specs & Actions */}
+            <div className="space-y-6">
+              
+              {/* Category & Rating */}
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <Badge className="bg-brand-blue/15 text-brand-blue-dark border-none font-semibold text-xs">
+                  {product.category || "Electrical"}
+                </Badge>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <div className="flex items-center text-amber-500">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className={`h-3.5 w-3.5 ${i < Math.floor(avgRating) ? "fill-amber-400 text-amber-400" : "text-muted-foreground"}`} />
+                    ))}
+                  </div>
+                  <span className="font-bold text-foreground">{avgRating}</span>
+                  <span>({reviews.length} customer ratings)</span>
+                </div>
               </div>
 
-              {/* Price */}
-              <div className="space-y-2 bg-gradient-to-r from-orange-50 to-pink-50 p-4 md:p-5 rounded-xl border border-orange-100">
-                <div className="flex items-baseline gap-2 md:gap-3 flex-wrap">
+              {/* Title & SKU */}
+              <div>
+                <h1 className="text-2xl md:text-3xl font-extrabold text-foreground leading-tight">
+                  {product.name}
+                </h1>
+                <p className="text-xs text-muted-foreground mt-1">Product SKU: <span className="font-mono">{product.id}</span></p>
+              </div>
+
+              {/* Price Inspection Card */}
+              <div className="bg-muted border border-border p-5 rounded-2xl space-y-2">
+                <div className="flex items-baseline gap-3 flex-wrap">
                   {product.discountedPrice ? (
                     <>
-                      <span className="text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-orange-600 to-pink-600 bg-clip-text text-transparent">
+                      <span className="text-3xl md:text-4xl font-extrabold text-brand-red">
                         ₦{product.discountedPrice.toLocaleString()}
                       </span>
-                      <span className="text-lg md:text-xl text-gray-500 line-through">
+                      <span className="text-lg md:text-xl text-muted-foreground line-through">
                         ₦{product.price.toLocaleString()}
                       </span>
-                      <Badge className="bg-green-100 text-green-800 border border-green-200 text-xs">
+                      <Badge className="bg-green-500/15 text-green-400 border-green-500/20 text-xs font-semibold">
                         Save ₦{(product.price - product.discountedPrice).toLocaleString()}
                       </Badge>
                     </>
                   ) : (
-                    <span className="text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-orange-600 to-pink-600 bg-clip-text text-transparent">
+                    <span className="text-3xl md:text-4xl font-extrabold text-brand-red">
                       ₦{product.price.toLocaleString()}
                     </span>
                   )}
                 </div>
-              </div>
-
-              {/* Description */}
-              <div className="bg-white/70 backdrop-blur-sm p-4 rounded-xl border border-white/50">
-                <p className="text-gray-700 text-sm md:text-base leading-relaxed">
-                  {product.description}
+                <p className="text-xs text-muted-foreground">
+                  Taxes included. Instant delivery across Lagos & interstate shipping available.
                 </p>
               </div>
 
-              {/* Stock Status */}
-              <div className="flex items-center gap-2 bg-white/70 backdrop-blur-sm p-3 rounded-xl border border-white/50">
-                {product.inStock ? (
-                  <>
-                    <Check className="h-4 w-4 md:h-5 md:w-5 text-green-500" />
-                    <span className="text-green-600 font-semibold text-sm md:text-base">
-                      In Stock - Ready to Ship
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-red-600 font-semibold text-sm md:text-base">
-                    Currently Out of Stock
-                  </span>
-                )}
-              </div>
+              {/* Description */}
+              <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                {product.description}
+              </p>
 
-              {/* Quantity Selector */}
-              <div className="space-y-3 md:space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Quantity
-                  </label>
-                  <div className="flex items-center border-2 border-orange-200 rounded-xl bg-white w-fit">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-10 w-10 md:h-12 md:w-12 rounded-l-xl hover:bg-orange-50"
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      disabled={quantity <= 1}
+              {/* Quantity & Order Buttons */}
+              <div className="space-y-4 pt-2">
+                <div className="flex items-center gap-4">
+                  <span className="text-xs font-bold text-gray-700">Quantity:</span>
+                  <div className="flex items-center border border-border rounded-xl bg-muted">
+                    <button
+                      onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                      className="px-3 py-1.5 text-muted-foreground hover:text-brand-red text-sm"
                     >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                    <div className="h-10 w-12 md:h-12 md:w-16 flex items-center justify-center text-gray-800 font-bold text-base md:text-lg">
-                      {quantity}
-                    </div>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-10 w-10 md:h-12 md:w-12 rounded-r-xl hover:bg-orange-50"
-                      onClick={() => setQuantity(quantity + 1)}
+                      <Minus className="h-3.5 w-3.5" />
+                    </button>
+                    <span className="px-3 py-1.5 font-bold text-sm text-foreground">{quantity}</span>
+                    <button
+                      onClick={() => setQuantity(q => q + 1)}
+                      className="px-3 py-1.5 text-muted-foreground hover:text-brand-red text-sm"
                     >
-                      <Plus className="h-4 w-4" />
-                    </Button>
+                      <Plus className="h-3.5 w-3.5" />
+                    </button>
                   </div>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="space-y-3">
-                  <Button 
-                    className="w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white py-5 md:py-6 text-base md:text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Button
                     onClick={handleAddToCart}
-                    disabled={!product.inStock}
+                    className="w-full py-3 bg-brand-red hover:bg-brand-red-dark text-white font-semibold rounded-xl text-sm shadow-sm flex items-center justify-center gap-2"
                   >
-                    <ShoppingCart className="h-4 w-4 md:h-5 md:w-5 mr-2" />
+                    <ShoppingCart className="h-4 w-4" />
                     Add to Cart
                   </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-2 border-orange-500 text-orange-600 hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 hover:text-white py-5 md:py-6 text-base md:text-lg font-bold rounded-xl transition-all duration-300"
+                  <Button
                     onClick={handleBuyNow}
-                    disabled={!product.inStock}
+                    variant="outline"
+                    className="w-full py-3 border-brand-red text-brand-red hover:bg-brand-red/5 font-semibold rounded-xl text-sm"
                   >
-                    Buy Now
+                    Buy Now & Checkout
                   </Button>
                 </div>
+
+                {/* Bulk / Contractor Inquiries */}
+                <Button
+                  onClick={openBulkQuoteWhatsApp}
+                  variant="ghost"
+                  className="w-full py-2.5 text-xs text-gray-700 hover:text-green-700 hover:bg-green-50 border border-green-200 rounded-xl flex items-center justify-center gap-2"
+                >
+                  <Phone className="h-3.5 w-3.5 text-green-600" />
+                  Request Wholesale / Contractor Bulk Pricing on WhatsApp
+                </Button>
               </div>
 
-              {/* Features */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 pt-2 md:pt-4">
-                <div className="flex items-center gap-2 md:gap-3 text-xs md:text-sm text-gray-600 bg-white/70 backdrop-blur-sm p-3 rounded-xl border border-white/50">
-                  <div className="w-8 h-8 bg-gradient-to-br from-orange-100 to-pink-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Truck className="h-3.5 w-3.5 md:h-4 md:w-4 text-orange-600" />
-                  </div>
-                  <span className="font-medium">Free Shipping</span>
+              {/* Warranty & Logistics Per-product */}
+              <div className="grid grid-cols-2 gap-3 pt-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-muted border border-border">
+                  <Truck className="h-4 w-4 text-brand-blue-dark flex-shrink-0" />
+                  <span>Lagos Same-Day & Interstate Dispatch</span>
                 </div>
-                <div className="flex items-center gap-2 md:gap-3 text-xs md:text-sm text-gray-600 bg-white/70 backdrop-blur-sm p-3 rounded-xl border border-white/50">
-                  <div className="w-8 h-8 bg-gradient-to-br from-orange-100 to-pink-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <RefreshCw className="h-3.5 w-3.5 md:h-4 md:w-4 text-orange-600" />
-                  </div>
-                  <span className="font-medium">Easy Returns</span>
-                </div>
-                <div className="flex items-center gap-2 md:gap-3 text-xs md:text-sm text-gray-600 bg-white/70 backdrop-blur-sm p-3 rounded-xl border border-white/50">
-                  <div className="w-8 h-8 bg-gradient-to-br from-orange-100 to-pink-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Shield className="h-3.5 w-3.5 md:h-4 md:w-4 text-orange-600" />
-                  </div>
-                  <span className="font-medium">2 Year Warranty</span>
+                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-muted border border-border">
+                  <Award className="h-4 w-4 text-brand-red flex-shrink-0" />
+                  <span>2 Years Official Warranty</span>
                 </div>
               </div>
-            </motion.div>
+
+            </div>
+
           </div>
 
-          {/* Product Details Tabs */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="mt-8 md:mt-12 lg:mt-16"
-          >
-            <Card className="border border-white/50 bg-white/70 backdrop-blur-sm shadow-lg">
-              <CardContent className="p-0">
-                <Tabs defaultValue="features" className="w-full">
-                  <TabsList className="w-full justify-start rounded-none border-b border-gray-200 bg-transparent h-auto p-0 overflow-x-auto scrollbar-hide">
-                    <TabsTrigger 
-                      value="features" 
-                      className="rounded-none px-4 md:px-6 py-3 md:py-4 text-sm md:text-base data-[state=active]:border-b-2 data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:text-orange-600 font-semibold whitespace-nowrap"
-                    >
-                      Features
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="specifications" 
-                      className="rounded-none px-4 md:px-6 py-3 md:py-4 text-sm md:text-base data-[state=active]:border-b-2 data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:text-orange-600 font-semibold whitespace-nowrap"
-                    >
-                      Specifications
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="reviews" 
-                      className="rounded-none px-4 md:px-6 py-3 md:py-4 text-sm md:text-base data-[state=active]:border-b-2 data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:text-orange-600 font-semibold whitespace-nowrap"
-                    >
-                      Reviews ({product.reviewCount || 0})
-                    </TabsTrigger>
-                  </TabsList>
+          {/* Deep Inspection Tabs: Features, Specifications, HOW TO USE (Videos & Do's/Don'ts), REVIEWS */}
+          <div className="mt-12">
+            <Card className="border border-border bg-card shadow-sm rounded-3xl overflow-hidden">
+              <Tabs defaultValue="how-to-use" className="w-full">
+                
+                <TabsList className="w-full justify-start rounded-none border-b border-border bg-muted h-auto p-0 overflow-x-auto">
+                  <TabsTrigger 
+                    value="how-to-use" 
+                    className="rounded-none px-6 py-4 text-sm font-bold data-[state=active]:border-b-2 data-[state=active]:border-brand-red data-[state=active]:bg-background data-[state=active]:text-brand-red"
+                  >
+                    <Play className="h-4 w-4 mr-1.5 fill-current" />
+                    How to Use (Videos & Do's / Don'ts)
+                  </TabsTrigger>
+
+                  <TabsTrigger 
+                    value="reviews" 
+                    className="rounded-none px-6 py-4 text-sm font-bold data-[state=active]:border-b-2 data-[state=active]:border-brand-red data-[state=active]:bg-background data-[state=active]:text-brand-red"
+                  >
+                    <Star className="h-4 w-4 mr-1.5" />
+                    Customer Ratings & Reviews ({reviews.length})
+                  </TabsTrigger>
+
+                  <TabsTrigger 
+                    value="specifications" 
+                    className="rounded-none px-6 py-4 text-sm font-bold data-[state=active]:border-b-2 data-[state=active]:border-brand-red data-[state=active]:bg-background data-[state=active]:text-brand-red"
+                  >
+                    <Award className="h-4 w-4 mr-1.5" />
+                    Technical Specifications
+                  </TabsTrigger>
+
+                  <TabsTrigger 
+                    value="features" 
+                    className="rounded-none px-6 py-4 text-sm font-bold data-[state=active]:border-b-2 data-[state=active]:border-brand-red data-[state=active]:bg-background data-[state=active]:text-brand-red"
+                  >
+                    <Check className="h-4 w-4 mr-1.5" />
+                    Key Features
+                  </TabsTrigger>
+                </TabsList>
+
+                {/* TAB 1: HOW TO USE & VIDEOS */}
+                <TabsContent value="how-to-use" className="p-6 md:p-8 space-y-8">
                   
-                  <TabsContent value="features" className="p-4 md:p-6">
-                    <div className="space-y-4">
-                      <h3 className="text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
-                        <Sparkles className="h-4 w-4 md:h-5 md:w-5 text-orange-500" />
-                        Product Features
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {productFeatures.map((feature: string, index: number) => (
-                          <div key={index} className="flex items-start gap-3 bg-gradient-to-r from-orange-50 to-pink-50 p-3 md:p-4 rounded-lg border border-orange-100">
-                            <Check className="h-4 w-4 md:h-5 md:w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                            <span className="text-gray-700 text-sm md:text-base">{feature}</span>
-                          </div>
-                        ))}
+                  {/* Video Demonstration Section */}
+                  <div className="bg-brand-dark text-white rounded-2xl p-6">
+                    <div className="flex flex-col md:flex-row items-center gap-6">
+                      <div className="relative w-full md:w-80 aspect-video rounded-xl overflow-hidden bg-black/60 flex items-center justify-center flex-shrink-0 border border-white/10 group">
+                        <Image
+                          src={productImages[0]}
+                          alt="Video Preview"
+                          fill
+                          className="object-cover opacity-60 group-hover:scale-105 transition-transform"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setActiveVideoModal(product.guide?.videoUrl || "https://www.youtube.com/embed/dQw4w9WgXcQ")}
+                          className="relative z-10 w-14 h-14 rounded-full bg-brand-red text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform"
+                          aria-label="Play Tutorial Video"
+                        >
+                          <Play className="h-6 w-6 fill-current ml-0.5" />
+                        </button>
                       </div>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="specifications" className="p-4 md:p-6">
-                    <div className="space-y-4">
-                      <h3 className="text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
-                        <Award className="h-4 w-4 md:h-5 md:w-5 text-orange-500" />
-                        Technical Specifications
-                      </h3>
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4">
-                        {Object.entries(productSpecifications).map(([key, value], index) => (
-                          <div key={index} className="flex flex-col sm:flex-row py-3 px-4 bg-gradient-to-r from-orange-50 to-pink-50 rounded-lg border border-orange-100">
-                            <span className="font-semibold text-gray-800 sm:min-w-[140px] text-sm md:text-base">{key}:</span>
-                            <span className="text-gray-700 sm:ml-4 text-sm md:text-base">{value}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="reviews" className="p-4 md:p-6">
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between flex-wrap gap-4">
-                        <h3 className="text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
-                          <MessageCircle className="h-4 w-4 md:h-5 md:w-5 text-orange-500" />
-                          Customer Reviews
+
+                      <div className="space-y-3 flex-1">
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-red/20 text-brand-red text-xs font-bold">
+                          <Play className="h-3 w-3 fill-current" /> Official Installation Video
+                        </div>
+                        <h3 className="text-xl font-bold">
+                          {product.guide?.videoTitle || `Installation & Wiring Tutorial for ${product.name}`}
                         </h3>
-                        <Button className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white text-sm md:text-base">
-                          <MessageCircle className="h-4 w-4" />
-                          Write a Review
+                        <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
+                          Watch our senior technician demonstrate proper mounting, wire strip lengths, earthing verification, and how to avoid circuit overloads.
+                        </p>
+                        <Button
+                          onClick={() => setActiveVideoModal(product.guide?.videoUrl || "https://www.youtube.com/embed/dQw4w9WgXcQ")}
+                          size="sm"
+                          className="bg-brand-red hover:bg-brand-red-dark text-white font-semibold rounded-xl text-xs flex items-center gap-2"
+                        >
+                          <Play className="h-3.5 w-3.5 fill-current" />
+                          Watch Video Tutorial
                         </Button>
                       </div>
-                      
-                      <div className="text-center py-12 bg-gradient-to-r from-orange-50 to-pink-50 border border-orange-200 rounded-xl">
-                        <MessageCircle className="h-10 w-10 md:h-12 md:w-12 text-orange-400 mx-auto mb-4" />
-                        <p className="text-gray-700 text-base md:text-lg font-semibold">No reviews yet</p>
-                        <p className="text-gray-600 text-xs md:text-sm mt-2">Be the first to review this product</p>
+                    </div>
+                  </div>
+
+                  {/* DO's and DON'Ts side by side */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    {/* DO's */}
+                    <div className="rounded-2xl border-2 border-green-200 bg-green-50/50 p-6 space-y-4">
+                      <div className="flex items-center gap-2 pb-2 border-b border-green-200">
+                        <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm">
+                          ✓
+                        </div>
+                        <div>
+                          <h4 className="text-base font-bold text-green-950">HOW TO USE (Approved Do's)</h4>
+                          <span className="text-xs text-green-700">Recommended for safety and full warranty</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        {(product.guide?.dos || [
+                          { title: "Ground the Yellow/Green Earth wire firmly", description: "Diverts high-voltage surges safely into the earth." },
+                          { title: "Use properly rated IP68 waterproof boxes", description: "Protects exterior wiring against moisture and tropical rainstorms." },
+                          { title: "Tighten screw clamps to manufacturer torque", description: "Prevents terminal micro-arcing and overheating under continuous current." }
+                        ]).map((item, idx) => (
+                          <div key={idx} className="bg-white p-3.5 rounded-xl border border-green-100 flex items-start gap-3 shadow-2xs">
+                            <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <div className="text-xs font-bold text-foreground">{item.title}</div>
+                              <div className="text-xs text-muted-foreground mt-0.5">{item.description}</div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
+
+                    {/* DONT's */}
+                    <div className="rounded-2xl border-2 border-red-200 bg-red-50/50 p-6 space-y-4">
+                      <div className="flex items-center gap-2 pb-2 border-b border-red-200">
+                        <div className="w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-sm">
+                          ✕
+                        </div>
+                        <div>
+                          <h4 className="text-base font-bold text-red-950">WHAT NOT TO DO (Dangerous Don'ts)</h4>
+                          <span className="text-xs text-red-700">Avoid hazards and warranty forfeiture</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        {(product.guide?.donts || [
+                          { title: "NEVER cut off the ground wire", description: "Disabling grounding creates severe electrocution risks in wet conditions." },
+                          { title: "DO NOT submerge non-submersible units", description: "Submerging causes driver short circuits and water seepage." },
+                          { title: "DO NOT connect to small generators without AVR", description: "Unregulated voltage spikes can destroy sensitive electronic drivers." }
+                        ]).map((item, idx) => (
+                          <div key={idx} className="bg-white p-3.5 rounded-xl border border-red-100 flex items-start gap-3 shadow-2xs">
+                            <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <div className="text-xs font-bold text-foreground">{item.title}</div>
+                              <div className="text-xs text-muted-foreground mt-0.5">{item.description}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                  </div>
+
+                </TabsContent>
+
+                {/* TAB 2: RATINGS & REVIEWS */}
+                <TabsContent value="reviews" className="p-6 md:p-8 space-y-8">
+                  
+                  {/* Reviews Summary & Write Action */}
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-6 bg-muted p-6 rounded-2xl border border-border">
+                    <div className="flex items-center gap-5">
+                      <div className="text-center">
+                        <div className="text-4xl font-extrabold text-foreground">{avgRating}</div>
+                        <div className="flex items-center text-amber-500 mt-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className={`h-4 w-4 ${i < Math.floor(avgRating) ? "fill-amber-400 text-amber-400" : "text-muted-foreground"}`} />
+                          ))}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">{reviews.length} total reviews</div>
+                      </div>
+
+                      <div className="hidden sm:block h-12 w-px bg-cream-300" />
+
+                      <div className="hidden sm:block text-xs text-muted-foreground space-y-1">
+                        <div>Verified buyer opinions are screened by CeC Quality Control.</div>
+                        <div>Share your installation experience to guide other electricians.</div>
+                      </div>
+                    </div>
+
+                    <Button
+                      onClick={() => setIsReviewModalOpen(true)}
+                      className="bg-brand-red hover:bg-brand-red-dark text-white font-semibold rounded-xl text-xs sm:text-sm px-6 py-2.5 shadow-xs"
+                    >
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      Rate & Review Product
+                    </Button>
+                  </div>
+
+                  {/* Reviews List */}
+                  <div className="space-y-4">
+                    {reviews.length === 0 ? (
+                      <div className="text-center py-10 border border-dashed border-border rounded-2xl">
+                        <Star className="h-8 w-8 text-cream-300 mx-auto mb-2" />
+                        <h4 className="font-bold text-gray-800">No reviews yet</h4>
+                        <p className="text-xs text-muted-foreground mt-1">Be the first to rate this product!</p>
+                      </div>
+                    ) : (
+                      reviews.map((rev) => (
+                        <div key={rev.id} className="p-5 rounded-2xl border border-border bg-white space-y-2">
+                          <div className="flex items-center justify-between flex-wrap gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-sm text-foreground">{rev.userName}</span>
+                              {rev.verified && (
+                                <Badge className="bg-green-100 text-green-800 text-[10px] border-green-200">
+                                  Verified Buyer
+                                </Badge>
+                              )}
+                            </div>
+                            <span className="text-xs text-gray-400">{rev.createdAt}</span>
+                          </div>
+
+                          <div className="flex items-center text-amber-500">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className={`h-3.5 w-3.5 ${i < rev.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground"}`} />
+                            ))}
+                          </div>
+
+                          <h5 className="font-bold text-sm text-foreground">{rev.title}</h5>
+                          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{rev.comment}</p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                </TabsContent>
+
+                {/* TAB 3: SPECIFICATIONS */}
+                <TabsContent value="specifications" className="p-6 md:p-8">
+                  <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                    <Award className="h-5 w-5 text-brand-red" />
+                    Engineering Specifications
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {Object.entries(productSpecifications).map(([key, val], idx) => (
+                      <div key={idx} className="flex justify-between items-center p-3.5 bg-muted rounded-xl border border-border text-xs sm:text-sm">
+                        <span className="font-semibold text-muted-foreground">{key}</span>
+                        <span className="font-bold text-foreground text-right">{val}</span>
+                      </div>
+                    ))}
+                  </div>
+                </TabsContent>
+
+                {/* TAB 4: FEATURES */}
+                <TabsContent value="features" className="p-6 md:p-8">
+                  <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                    <Check className="h-5 w-5 text-brand-red" />
+                    Design & Performance Features
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {productFeatures.map((feat, idx) => (
+                      <div key={idx} className="flex items-start gap-3 p-3.5 bg-muted rounded-xl border border-border">
+                        <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                        <span className="text-xs sm:text-sm text-gray-800 font-medium">{feat}</span>
+                      </div>
+                    ))}
+                  </div>
+                </TabsContent>
+
+              </Tabs>
             </Card>
-          </motion.div>
+          </div>
 
           {/* Related Products */}
           {relatedProducts.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="mt-8 md:mt-12 lg:mt-16"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 flex items-center gap-2">
-                  <Zap className="h-5 w-5 md:h-6 md:w-6 text-orange-500" />
-                  Related Products
-                </h2>
-                <Link href={`/products?category=${product.category}`}>
-                  <Button variant="ghost" className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 text-sm md:text-base">
-                    View All
-                    <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </Link>
-              </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
-                {relatedProducts.map((relatedProduct) => (
-                  <RelatedProductCard key={relatedProduct.id} product={relatedProduct} />
+            <div className="mt-16">
+              <h3 className="text-xl md:text-2xl font-bold text-foreground mb-6">
+                Related CeC Ayigo Products
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                {relatedProducts.map(p => (
+                  <RelatedProductCard key={p.id} product={p} />
                 ))}
               </div>
-            </motion.div>
+            </div>
           )}
+
         </div>
       </div>
+
+      {/* Review Submission Modal Dialog */}
+      <Dialog open={isReviewModalOpen} onOpenChange={setIsReviewModalOpen}>
+        <DialogContent className="max-w-md bg-white border border-border rounded-3xl p-6">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-foreground">
+              Rate & Review This Product
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Your feedback is displayed on the product page and shared with CeC quality control.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleReviewSubmit} className="space-y-4 pt-2">
+            
+            {/* Interactive 5-Star Rating Picker */}
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">Your Rating *</label>
+              <div className="flex items-center gap-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onMouseEnter={() => setHoverRating(star)}
+                    onMouseLeave={() => setHoverRating(0)}
+                    onClick={() => setReviewForm(p => ({ ...p, rating: star }))}
+                    className="p-1 transition-transform hover:scale-110"
+                  >
+                    <Star
+                      className={`h-7 w-7 ${
+                        star <= (hoverRating || reviewForm.rating)
+                          ? "fill-amber-400 text-amber-400"
+                          : "text-muted-foreground"
+                      }`}
+                    />
+                  </button>
+                ))}
+                <span className="text-xs font-bold text-gray-700 ml-2">
+                  {hoverRating || reviewForm.rating} / 5 Stars
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Your Name *</label>
+              <Input
+                required
+                placeholder="e.g. Engr. Chukwudi"
+                value={reviewForm.userName}
+                onChange={e => setReviewForm(p => ({ ...p, userName: e.target.value }))}
+                className="bg-muted/50 border-border focus:border-brand-red rounded-xl text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Review Headline</label>
+              <Input
+                placeholder="e.g. Excellent brightness and durable casing"
+                value={reviewForm.title}
+                onChange={e => setReviewForm(p => ({ ...p, title: e.target.value }))}
+                className="bg-muted/50 border-border focus:border-brand-red rounded-xl text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Written Comment & Experience *</label>
+              <Textarea
+                required
+                rows={4}
+                placeholder="Share details about installation, light output, durability, or performance under Nigerian weather..."
+                value={reviewForm.comment}
+                onChange={e => setReviewForm(p => ({ ...p, comment: e.target.value }))}
+                className="bg-muted/50 border-border focus:border-brand-red rounded-xl text-sm"
+              />
+            </div>
+
+            <Button
+              type="submit"
+              disabled={isSubmittingReview}
+              className="w-full py-2.5 bg-brand-red hover:bg-brand-red-dark text-white font-semibold rounded-xl text-sm transition-colors"
+            >
+              {isSubmittingReview ? "Submitting Review..." : "Publish Review"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Video Modal Player */}
+      {activeVideoModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="relative w-full max-w-3xl bg-black rounded-2xl overflow-hidden shadow-2xl">
+            <button
+              onClick={() => setActiveVideoModal(null)}
+              className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center transition-colors"
+              aria-label="Close video"
+            >
+              ✕
+            </button>
+            <div className="aspect-video w-full">
+              <iframe
+                src={activeVideoModal}
+                title="Product Tutorial Video"
+                className="w-full h-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

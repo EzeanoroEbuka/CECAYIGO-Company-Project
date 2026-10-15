@@ -11,6 +11,7 @@ import {
   CheckCircle,
   ChevronLeft,
   ChevronRight,
+  Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 import { productService } from "@/services/productService";
@@ -26,7 +27,7 @@ interface Product {
   category?: string;
 }
 
-const SHOW_PRODUCT = false;
+const SHOW_PRODUCT = true;
 
 export function HeroSection() {
   const router = useRouter();
@@ -35,30 +36,30 @@ export function HeroSection() {
   const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const [imageLoaded, setImageLoaded] = useState<{ [key: string]: boolean }>({});
+  const [imageLoaded, setImageLoaded] = useState<{ [key: string]: boolean }>(
+    {},
+  );
 
-  // Fetch products (only if SHOW_PRODUCT is true)
   useEffect(() => {
     if (!SHOW_PRODUCT) return;
-
     const fetchProducts = async () => {
       try {
         const featuredProducts = await productService.getFeaturedProducts(3);
         setProducts(featuredProducts);
-        // Preload first image
         if (featuredProducts.length > 0) {
           const img = new window.Image();
           img.src = featuredProducts[0].images[0];
         }
-      } catch (error) {
-        // Fallback demo products
+      } catch {
         setProducts([
           {
             id: "1",
             name: "Complete Solar System 5KVA",
             price: 850000,
             discountedPrice: 750000,
-            images: ["https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=80&auto=format"],
+            images: [
+              "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=80&auto=format",
+            ],
             description: "Complete solar package with battery & inverter",
             inStock: true,
             category: "Solar Systems",
@@ -68,7 +69,9 @@ export function HeroSection() {
             name: "Solar Street Light 150W",
             price: 180000,
             discountedPrice: 165000,
-            images: ["https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=800&q=80&auto=format"],
+            images: [
+              "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=800&q=80&auto=format",
+            ],
             description: "High-efficiency LED solar street light",
             inStock: true,
             category: "Street Lights",
@@ -77,7 +80,9 @@ export function HeroSection() {
             id: "3",
             name: "Lithium Battery 200AH",
             price: 450000,
-            images: ["https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?w=800&q=80&auto=format"],
+            images: [
+              "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?w=800&q=80&auto=format",
+            ],
             description: "Long-lasting lithium battery",
             inStock: true,
             category: "Batteries",
@@ -90,7 +95,6 @@ export function HeroSection() {
     fetchProducts();
   }, []);
 
-  // Preload next image when slide changes
   useEffect(() => {
     if (!SHOW_PRODUCT || products.length <= 1) return;
     const nextIndex = (currentSlide + 1) % products.length;
@@ -98,7 +102,6 @@ export function HeroSection() {
     img.src = products[nextIndex].images[0];
   }, [currentSlide, products]);
 
-  // Auto‑play carousel
   useEffect(() => {
     if (!SHOW_PRODUCT || products.length <= 1 || !isAutoPlaying) return;
     const timer = setInterval(() => {
@@ -127,110 +130,158 @@ export function HeroSection() {
         toast.error("Failed to add item to cart");
       }
     },
-    [addToCart]
+    [addToCart],
   );
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % products.length);
+    setCurrentSlide((p) => (p + 1) % products.length);
     setIsAutoPlaying(false);
   };
-
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + products.length) % products.length);
+    setCurrentSlide((p) => (p - 1 + products.length) % products.length);
     setIsAutoPlaying(false);
   };
+  const handleImageLoad = (productId: string) =>
+    setImageLoaded((p) => ({ ...p, [productId]: true }));
 
-  const handleImageLoad = (productId: string) => {
-    setImageLoaded((prev) => ({ ...prev, [productId]: true }));
-  };
-
-  // Loading state
   if (SHOW_PRODUCT && loading) {
     return (
-      <section className="w-full min-h-[70vh] bg-gradient-to-br from-orange-50 via-white to-blue-50 flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+      <section className="w-full min-h-[70vh] bg-background flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-brand-red border-t-transparent rounded-full animate-spin" />
       </section>
     );
   }
 
-  const currentProduct = SHOW_PRODUCT && products.length > 0 ? products[currentSlide] : null;
-  const discountPercent =
-    currentProduct?.discountedPrice
-      ? Math.round(((currentProduct.price - currentProduct.discountedPrice) / currentProduct.price) * 100)
-      : 0;
+  const currentProduct =
+    SHOW_PRODUCT && products.length > 0 ? products[currentSlide] : null;
+  const discountPercent = currentProduct?.discountedPrice
+    ? Math.round(
+        ((currentProduct.price - currentProduct.discountedPrice) /
+          currentProduct.price) *
+          100,
+      )
+    : 0;
 
   return (
-    <section className="relative w-full bg-[#F8FAFC] overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 relative z-10">
-        <div className={`grid grid-cols-1 ${SHOW_PRODUCT ? "lg:grid-cols-2" : "lg:grid-cols-1"} gap-8 lg:gap-12 items-center`}>
-          {/* Left column: brand & messaging */}
+    <section className="relative w-full bg-background border-b border-border overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-brand-red/5 blur-3xl" />
+        <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-brand-blue/5 blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-brand-cream/3 dark:bg-brand-blue/3 blur-3xl" />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 relative z-10">
+        <div
+          className={`grid grid-cols-1 ${SHOW_PRODUCT ? "lg:grid-cols-2" : "lg:grid-cols-1"} gap-8 lg:gap-14 items-center`}
+        >
+          {/* ── Left column: Brand & messaging ── */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="space-y-6"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm" style={{ background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.25)" }}>
-                <Sun className="h-6 w-6" style={{ color: "#F59E0B" }} />
+            {/* Brand header */}
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 flex-shrink-0 rounded-xl flex items-center justify-center bg-brand-red/10 border border-brand-red/20 dark:bg-brand-red/15 dark:border-brand-red/30">
+                <Sun className="h-5 w-5 text-brand-red" />
               </div>
-              <div>
-                <h2 className="text-2xl md:text-3xl font-bold tracking-tight" style={{ color: "#0F172A" }}>
+              <div className="min-w-0">
+                <h2 className="text-sm sm:text-base md:text-lg font-extrabold tracking-tight text-foreground leading-tight truncate">
                   CEC AYIGO AND SONS LIGHTINGS
                 </h2>
-                <p className="text-sm" style={{ color: "#64748B" }}>CAC Verified • Lagos-wide support</p>
+                <p className="text-xs text-brand-blue font-semibold mt-0.5 truncate">
+                  CAC Registered · Alaba International · Lagos
+                </p>
               </div>
             </div>
 
+            {/* Headline */}
             <div className="space-y-3 max-w-xl">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight" style={{ color: "#0F172A" }}>
-                Reliable Solar, <br className="hidden sm:block" />
-                Delivered to You
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tight text-foreground">
+                Quality Electrical,{" "}
+                <span className="text-brand-red">Lighting</span> &amp;{" "}
+                <span className="text-brand-blue">Solar Systems</span>
               </h1>
-              <p className="text-base md:text-lg" style={{ color: "#64748B" }}>
-                Quality systems, fast installation, and dedicated support across Lagos.
+              <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                Inspect technical product details and live prices, watch
+                certified video tutorials, and order directly with rapid Lagos
+                and nationwide delivery.
               </p>
             </div>
 
+            {/* Quick-action badges */}
+            <div className="flex flex-wrap gap-2 pt-1">
+              <a
+                href="/guides"
+                className="text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors
+                  bg-brand-blue/10 border-brand-blue/25 text-brand-blue hover:bg-brand-blue/20
+                  dark:bg-brand-blue/15 dark:border-brand-blue/30"
+              >
+                🎥 Video Guides
+              </a>
+              <a
+                href="/feedback"
+                className="text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors
+                  bg-brand-red/10 border-brand-red/20 text-brand-red hover:bg-brand-red/20
+                  dark:bg-brand-red/15 dark:border-brand-red/30"
+              >
+                🛡️ Complaints
+              </a>
+              <a
+                href="/order-tracking"
+                className="text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors
+                  bg-muted border-border text-muted-foreground hover:text-foreground hover:bg-muted/80"
+              >
+                📦 Track Order
+              </a>
+            </div>
+
             {/* CTA buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row gap-3 pt-1">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleShopNow}
-                className="inline-flex items-center justify-center gap-2 text-white px-6 py-3 rounded-2xl font-medium text-base shadow-sm transition-colors"
-                style={{ background: "#F59E0B" }}
+                className="inline-flex items-center justify-center gap-2 bg-brand-red hover:bg-brand-red-dark text-white px-6 py-3 rounded-2xl font-semibold text-sm shadow-brand-red transition-colors"
               >
-                <ShoppingCart className="h-5 w-5" />
-                Shop Now
+                <ShoppingCart className="h-4 w-4" />
+                Browse Products &amp; Prices
                 <ArrowRight className="h-4 w-4" />
               </motion.button>
 
               <motion.a
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                href="tel:+2348147254399"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-medium text-base shadow-sm transition-colors"
-                style={{ background: "#FFFFFF", color: "#0F172A", border: "1px solid #E5E7EB" }}
+                href="https://wa.me/2348147254399?text=Hello%20CeC%20Ayigo,%20I%20want%20to%20inquire%20about%20your%20products."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-semibold text-sm transition-colors
+                  bg-card border border-border text-foreground hover:bg-muted"
               >
-                <Phone className="h-5 w-5" />
-                Call Now
+                <Phone className="h-4 w-4 text-green-500" />
+                Chat on WhatsApp
               </motion.a>
             </div>
 
             {/* Trust indicators */}
-            <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-gray-100">
-              {["Trusted Customers", "Genuine Products", "Fast Delivery"].map((text, idx) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 flex-shrink-0" style={{ color: "#16A34A" }} />
-                  <span className="text-sm font-medium" style={{ color: "#0F172A" }}>{text}</span>
-                </div>
-              ))}
+            <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-border">
+              {["Trusted Customers", "Genuine Products", "Fast Delivery"].map(
+                (text, idx) => (
+                  <div key={idx} className="flex items-center gap-1.5">
+                    <CheckCircle className="h-3.5 w-3.5 flex-shrink-0 text-green-500" />
+                    <span className="text-xs sm:text-sm font-medium text-foreground">
+                      {text}
+                    </span>
+                  </div>
+                ),
+              )}
             </div>
 
-            {/* Mobile product card (only when SHOW_PRODUCT) */}
+            {/* Mobile product card */}
             {SHOW_PRODUCT && currentProduct && (
-              <div className="lg:hidden mt-8">
+              <div className="lg:hidden mt-6">
                 <ProductCard
                   product={currentProduct}
                   discountPercent={discountPercent}
@@ -252,7 +303,7 @@ export function HeroSection() {
             )}
           </motion.div>
 
-          {/* Right column: product carousel (desktop) */}
+          {/* ── Right column: Product carousel (desktop) ── */}
           {SHOW_PRODUCT && currentProduct && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
@@ -260,22 +311,31 @@ export function HeroSection() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="hidden lg:block relative"
             >
-              <div className="relative bg-white rounded-2xl shadow-xl border border-gray-100 p-4">
+              <div className="relative bg-card border border-border rounded-2xl shadow-card-dark p-5">
+                {/* Subtle top accent */}
+                <div className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-gradient-to-r from-brand-red via-brand-blue to-brand-red" />
+
                 {products.length > 1 && (
                   <>
                     <button
                       onClick={prevSlide}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white transition-colors"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9
+                        bg-background/80 backdrop-blur-sm border border-border rounded-full
+                        flex items-center justify-center hover:border-brand-red hover:text-brand-red
+                        transition-colors shadow-sm"
                       aria-label="Previous product"
                     >
-                      <ChevronLeft className="h-5 w-5 text-gray-700" />
+                      <ChevronLeft className="h-5 w-5" />
                     </button>
                     <button
                       onClick={nextSlide}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9
+                        bg-background/80 backdrop-blur-sm border border-border rounded-full
+                        flex items-center justify-center hover:border-brand-red hover:text-brand-red
+                        transition-colors shadow-sm"
                       aria-label="Next product"
                     >
-                      <ChevronRight className="h-5 w-5 text-gray-700" />
+                      <ChevronRight className="h-5 w-5" />
                     </button>
                   </>
                 )}
@@ -307,9 +367,9 @@ export function HeroSection() {
   );
 }
 
-// -----------------------------------------------------------------------------
-// Subcomponents for better readability
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────
+// Sub-components
+// ─────────────────────────────────────────────────────────
 
 interface ProductCardProps {
   product: Product;
@@ -319,11 +379,17 @@ interface ProductCardProps {
   onAddToCart: () => void;
 }
 
-function ProductCard({ product, discountPercent, imageLoaded, onImageLoad, onAddToCart }: ProductCardProps) {
+function ProductCard({
+  product,
+  discountPercent,
+  imageLoaded,
+  onImageLoad,
+  onAddToCart,
+}: ProductCardProps) {
   return (
     <div className="space-y-4">
       {/* Image container */}
-      <div className="relative aspect-square bg-gray-50 rounded-xl overflow-hidden">
+      <div className="relative aspect-square bg-muted rounded-xl overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key={product.id}
@@ -333,11 +399,13 @@ function ProductCard({ product, discountPercent, imageLoaded, onImageLoad, onAdd
             className="relative w-full h-full"
           >
             {!imageLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                <div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+              <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                <div className="w-10 h-10 border-4 border-brand-red border-t-transparent rounded-full animate-spin" />
               </div>
             )}
-            <div className={`relative w-full h-full ${imageLoaded ? "opacity-100" : "opacity-0"} transition-opacity duration-300`}>
+            <div
+              className={`relative w-full h-full transition-opacity duration-300 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
+            >
               <Image
                 src={product.images[0]}
                 alt={product.name}
@@ -346,21 +414,19 @@ function ProductCard({ product, discountPercent, imageLoaded, onImageLoad, onAdd
                 className="object-contain p-4"
                 onLoadingComplete={onImageLoad}
                 priority
+                unoptimized
               />
             </div>
           </motion.div>
         </AnimatePresence>
 
-        {/* Discount badge */}
         {discountPercent > 0 && (
-          <div className="absolute top-3 right-3 bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full z-10">
+          <div className="absolute top-3 right-3 bg-brand-red text-white text-xs font-bold px-2 py-1 rounded-full z-10">
             {discountPercent}% OFF
           </div>
         )}
-
-        {/* Category badge */}
         {product.category && (
-          <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-gray-700 text-xs font-medium px-3 py-1 rounded-full shadow-sm z-10">
+          <div className="absolute top-3 left-3 bg-background/90 backdrop-blur-sm border border-border text-foreground text-xs font-medium px-3 py-1 rounded-full shadow-sm z-10">
             {product.category}
           </div>
         )}
@@ -368,28 +434,30 @@ function ProductCard({ product, discountPercent, imageLoaded, onImageLoad, onAdd
 
       {/* Product info */}
       <div className="space-y-2">
-        <h3 className="font-bold text-gray-900 text-lg truncate">{product.name}</h3>
+        <h3 className="font-bold text-foreground text-lg truncate">
+          {product.name}
+        </h3>
         <div className="flex items-baseline gap-2">
-          <span className="text-2xl font-bold text-orange-600">
+          <span className="text-2xl font-black text-brand-red">
             ₦{(product.discountedPrice || product.price).toLocaleString()}
           </span>
           {product.discountedPrice && (
-            <span className="text-sm text-gray-400 line-through">
+            <span className="text-sm text-muted-foreground line-through">
               ₦{product.price.toLocaleString()}
             </span>
           )}
         </div>
-        <div className="text-sm text-green-700 font-medium bg-green-50 px-3 py-1 rounded-full inline-block">
-          In Stock
-        </div>
+        <span className="inline-block text-xs font-semibold text-green-400 bg-green-500/10 border border-green-500/20 px-3 py-1 rounded-full">
+          ✓ In Stock
+        </span>
       </div>
 
-      {/* Add to cart button */}
+      {/* Add to cart */}
       <motion.button
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         onClick={onAddToCart}
-        className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-medium shadow-sm transition-colors flex items-center justify-center gap-2"
+        className="w-full bg-brand-red hover:bg-brand-red-dark text-white py-3 rounded-xl font-semibold shadow-brand-red transition-colors flex items-center justify-center gap-2"
       >
         <ShoppingCart className="h-5 w-5" />
         Add to Cart
@@ -405,7 +473,11 @@ interface CarouselIndicatorsProps {
   onChange: (index: number) => void;
 }
 
-function CarouselIndicators({ total, current, onChange }: CarouselIndicatorsProps) {
+function CarouselIndicators({
+  total,
+  current,
+  onChange,
+}: CarouselIndicatorsProps) {
   return (
     <div className="flex justify-center gap-1.5 mt-4">
       {Array.from({ length: total }).map((_, idx) => (
@@ -413,7 +485,9 @@ function CarouselIndicators({ total, current, onChange }: CarouselIndicatorsProp
           key={idx}
           onClick={() => onChange(idx)}
           className={`h-1.5 rounded-full transition-all ${
-            idx === current ? "bg-orange-500 w-6" : "bg-gray-300 w-1.5 hover:bg-gray-400"
+            idx === current
+              ? "bg-brand-red w-6"
+              : "bg-border w-1.5 hover:bg-muted-foreground"
           }`}
           aria-label={`Go to slide ${idx + 1}`}
         />

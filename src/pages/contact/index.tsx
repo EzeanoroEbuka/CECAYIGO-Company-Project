@@ -153,32 +153,32 @@ const ContactPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background">
       {/* Header Section */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-100 dark:border-gray-700">
+      <div className="bg-card shadow-sm border-b border-border">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center max-w-3xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-4 border border-primary/20"
+              className="inline-flex items-center gap-2 bg-brand-red/10 text-brand-red px-4 py-2 rounded-full text-sm font-medium mb-4 border border-brand-red/20"
             >
               <MessageSquare className="h-4 w-4" />
               Get in Touch
             </motion.div>
             
             <motion.h1 
-              className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-gray-900 dark:text-white"
+              className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-foreground"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
             >
-              Contact <span className="text-primary">CeC-Electrical</span>
+              Contact <span className="text-brand-red">CeC-Electrical</span>
             </motion.h1>
             
             <motion.p 
-              className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed"
+              className="text-lg text-muted-foreground leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
@@ -199,8 +199,8 @@ const ContactPage = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="lg:col-span-1"
           >
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 h-fit">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+            <div className="bg-card rounded-xl shadow-sm border border-border p-6 h-fit">
+              <h2 className="text-xl font-semibold text-foreground mb-6">
                 Contact Information
               </h2>
               
@@ -211,19 +211,19 @@ const ContactPage = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: 0.4 + index * 0.1 }}
-                    className="flex items-start gap-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    className="flex items-start gap-4 p-3 rounded-lg hover:bg-muted transition-colors"
                   >
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${info.color} bg-gray-100 dark:bg-gray-700`}>
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${info.color} bg-gray-100 `}>
                       <info.icon className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="font-medium text-gray-900 dark:text-white mb-1">
+                      <h3 className="font-medium text-foreground mb-1">
                         {info.title}
                       </h3>
-                      <p className="text-gray-900 dark:text-white text-sm font-medium">
+                      <p className="text-foreground text-sm font-medium">
                         {info.primary}
                       </p>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm">
+                      <p className="text-muted-foreground text-sm">
                         {info.secondary}
                       </p>
                     </div>
@@ -232,8 +232,8 @@ const ContactPage = () => {
               </div>
 
               {/* Trust indicators */}
-              <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+              <div className="mt-8 pt-6 border-t border-border">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <Shield className="h-4 w-4 text-green-500" />
                     <span>Secure & Private</span>
@@ -254,7 +254,7 @@ const ContactPage = () => {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="lg:col-span-2"
           >
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div className="bg-card rounded-xl shadow-sm border border-border p-6">
               <AnimatePresence mode="wait">
                 {!isSubmitted ? (
                   <motion.div
@@ -264,14 +264,14 @@ const ContactPage = () => {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+                    <h2 className="text-xl font-semibold text-foreground mb-6">
                       Send us a Message
                     </h2>
 
                     <div className="space-y-6">
                       {/* Inquiry Type */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                        <label className="block text-sm font-medium text-foreground/80 mb-3">
                           What can we help you with?
                         </label>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -280,8 +280,8 @@ const ContactPage = () => {
                               key={type.value}
                               className={`relative flex flex-col items-center p-3 rounded-lg border-2 cursor-pointer transition-all ${
                                 formData.inquiryType === type.value
-                                  ? 'border-primary bg-primary/5 text-primary'
-                                  : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                                  ? 'border-brand-red bg-primary/5 text-brand-red'
+                                  : 'border-border hover:border-gray-300 dark:hover:border-gray-500'
                               }`}
                             >
                               <input
@@ -304,22 +304,22 @@ const ContactPage = () => {
                       {/* Name and Email */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          <label htmlFor="name" className="block text-sm font-medium text-foreground/80 mb-2">
                             Full Name *
                           </label>
                           <div className="relative">
-                            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
                             <input
                               type="text"
                               id="name"
                               name="name"
                               value={formData.name}
                               onChange={handleInputChange}
-                              className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:ring-2 focus:ring-primary/30 transition-all ${
+                              className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:ring-2 focus:ring-brand-red/30 transition-all ${
                                 errors.name
                                   ? 'border-red-300 focus:border-red-500'
-                                  : 'border-gray-300 dark:border-gray-600 focus:border-primary'
-                              } bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100`}
+                                  : 'border-border focus:border-brand-red'
+                              } bg-card text-gray-900 dark:text-gray-100`}
                               placeholder="Enter your full name"
                             />
                           </div>
@@ -329,22 +329,22 @@ const ContactPage = () => {
                         </div>
 
                         <div>
-                          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          <label htmlFor="email" className="block text-sm font-medium text-foreground/80 mb-2">
                             Email Address *
                           </label>
                           <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
                             <input
                               type="email"
                               id="email"
                               name="email"
                               value={formData.email}
                               onChange={handleInputChange}
-                              className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:ring-2 focus:ring-primary/30 transition-all ${
+                              className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:ring-2 focus:ring-brand-red/30 transition-all ${
                                 errors.email
                                   ? 'border-red-300 focus:border-red-500'
-                                  : 'border-gray-300 dark:border-gray-600 focus:border-primary'
-                              } bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100`}
+                                  : 'border-border focus:border-brand-red'
+                              } bg-card text-gray-900 dark:text-gray-100`}
                               placeholder="Enter your email address"
                             />
                           </div>
@@ -356,18 +356,18 @@ const ContactPage = () => {
 
                       {/* Company (Optional) */}
                       <div>
-                        <label htmlFor="company" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label htmlFor="company" className="block text-sm font-medium text-foreground/80 mb-2">
                           Company (Optional)
                         </label>
                         <div className="relative">
-                          <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                          <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
                           <input
                             type="text"
                             id="company"
                             name="company"
                             value={formData.company}
                             onChange={handleInputChange}
-                            className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                            className="w-full pl-10 pr-4 py-3 rounded-lg border border-border focus:ring-2 focus:ring-brand-red/30 focus:border-brand-red transition-all bg-card text-gray-900 dark:text-gray-100"
                             placeholder="Enter your company name"
                           />
                         </div>
@@ -375,7 +375,7 @@ const ContactPage = () => {
 
                       {/* Subject */}
                       <div>
-                        <label htmlFor="subject" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label htmlFor="subject" className="block text-sm font-medium text-foreground/80 mb-2">
                           Subject *
                         </label>
                         <input
@@ -384,11 +384,11 @@ const ContactPage = () => {
                           name="subject"
                           value={formData.subject}
                           onChange={handleInputChange}
-                          className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-primary/30 transition-all ${
+                          className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-brand-red/30 transition-all ${
                             errors.subject
                               ? 'border-red-300 focus:border-red-500'
-                              : 'border-gray-300 dark:border-gray-600 focus:border-primary'
-                          } bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100`}
+                              : 'border-border focus:border-brand-red'
+                          } bg-card text-gray-900 dark:text-gray-100`}
                           placeholder="Brief description of your inquiry"
                         />
                         {errors.subject && (
@@ -398,7 +398,7 @@ const ContactPage = () => {
 
                       {/* Message */}
                       <div>
-                        <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label htmlFor="message" className="block text-sm font-medium text-foreground/80 mb-2">
                           Message *
                         </label>
                         <textarea
@@ -407,17 +407,17 @@ const ContactPage = () => {
                           value={formData.message}
                           onChange={handleInputChange}
                           rows={5}
-                          className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-primary/30 transition-all resize-none ${
+                          className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-brand-red/30 transition-all resize-none ${
                             errors.message
                               ? 'border-red-300 focus:border-red-500'
-                              : 'border-gray-300 dark:border-gray-600 focus:border-primary'
-                          } bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100`}
+                              : 'border-border focus:border-brand-red'
+                          } bg-card text-gray-900 dark:text-gray-100`}
                           placeholder="Please provide details about your inquiry..."
                         />
                         {errors.message && (
                           <p className="text-red-500 text-sm mt-1">{errors.message}</p>
                         )}
-                        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+                        <p className="text-muted-foreground text-sm mt-1">
                           {formData.message.length}/500 characters
                         </p>
                       </div>
@@ -443,7 +443,7 @@ const ContactPage = () => {
                         )}
                       </motion.button>
 
-                      <p className="text-gray-500 dark:text-gray-400 text-sm text-center">
+                      <p className="text-muted-foreground text-sm text-center">
                         By submitting this form, you agree to our privacy policy and terms of service.
                       </p>
                     </div>
@@ -459,10 +459,10 @@ const ContactPage = () => {
                     <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
                       <CheckCircle className="h-10 w-10 text-green-600 dark:text-green-400" />
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                    <h3 className="text-2xl font-bold text-foreground mb-4">
                       Message Sent Successfully!
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
+                    <p className="text-muted-foreground mb-8 max-w-md mx-auto">
                       Thank you for reaching out to us. We've received your message and will get back to you within 24 hours.
                     </p>
                     <button
@@ -481,7 +481,7 @@ const ContactPage = () => {
       </div>
 
       {/* FAQ Section */}
-      <div className="bg-white dark:bg-gray-800 py-16">
+      <div className="bg-card py-16">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -490,13 +490,13 @@ const ContactPage = () => {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <span className="inline-block bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-4 border border-primary/20">
+            <span className="inline-block bg-brand-red/10 text-brand-red px-4 py-2 rounded-full text-sm font-medium mb-4 border border-brand-red/20">
               Need Quick Answers?
             </span>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl font-bold text-foreground mb-4">
               Frequently Asked Questions
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            <p className="text-muted-foreground max-w-2xl mx-auto">
               Find quick answers to common questions. Can't find what you're looking for? Contact us directly.
             </p>
           </motion.div>
@@ -527,12 +527,12 @@ const ContactPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6"
+                className="bg-gray-50  rounded-lg p-6"
               >
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-3">
+                <h3 className="font-semibold text-foreground mb-3">
                   {faq.question}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed">
                   {faq.answer}
                 </p>
               </motion.div>

@@ -9,20 +9,41 @@ export default function Home() {
     <>
       <Head>
         <title>CeC - Shop Easy</title>
-        <meta name='description' content='Discover quality products with ease at CeC. Browse our collection and find exactly what you need.' />
-        <meta name='keywords' content='e-commerce, online shopping, products, CeC' />
-        <link rel='icon' href='/public/favicon.ico' />
-        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="" />
+        <meta
+          name="description"
+          content="Discover quality products with ease at CeC. Browse our collection and find exactly what you need."
+        />
+        <meta
+          name="keywords"
+          content="e-commerce, online shopping, products, CeC"
+        />
+        <link rel="icon" href="/image/cec-logo.png" />
+        <link
+          rel="preconnect"
+          href="https://images.unsplash.com"
+          crossOrigin=""
+        />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
-        <link rel="preconnect" href="https://images.pexels.com" crossOrigin="" />
+        <link
+          rel="preconnect"
+          href="https://images.pexels.com"
+          crossOrigin=""
+        />
         <link rel="dns-prefetch" href="https://images.pexels.com" />
         <link rel="preconnect" href="https://pixabay.com" crossOrigin="" />
         <link rel="dns-prefetch" href="https://pixabay.com" />
-        <link rel="preconnect" href="https://firebasestorage.googleapis.com" crossOrigin="" />
-        <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://firebasestorage.googleapis.com"
+          crossOrigin=""
+        />
+        <link
+          rel="dns-prefetch"
+          href="https://firebasestorage.googleapis.com"
+        />
       </Head>
-      
-      <div className='min-h-screen bg-[#F8FAFC]'>
+
+      <div className="min-h-screen bg-background">
         <HeroSection />
         <CategoriesSection />
         <FeaturedProducts />

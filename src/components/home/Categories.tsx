@@ -1,153 +1,161 @@
 import React from "react";
-import { motion } from 'framer-motion';
-import Link from 'next/link';
-import { 
-  Sun, 
-  Lightbulb, 
-  Battery, 
-  Zap, 
+import { motion } from "framer-motion";
+import Link from "next/link";
+import {
+  Sun,
+  Lightbulb,
+  Battery,
+  Zap,
   Camera,
   Wind,
   ArrowRight,
-  Sparkles
-} from 'lucide-react';
+  Sparkles,
+} from "lucide-react";
 
 interface Category {
   id: string;
   name: string;
   icon: React.ReactNode;
-  gradient: string;
+  lightGradient: string;
+  darkGradient: string;
   count: number;
 }
 
 const CATEGORIES: Category[] = [
-  { 
-    id: 'solar', 
-    name: 'Solar Systems', 
-    icon: <Sun className='h-7 w-7 text-white' />,
-    gradient: 'from-orange-500 to-yellow-500',
-    count: 85
+  {
+    id: "solar",
+    name: "Solar Systems",
+    icon: <Sun className="h-7 w-7 text-white" />,
+    lightGradient: "from-orange-500 to-yellow-500",
+    darkGradient: "from-orange-600 to-yellow-600",
+    count: 85,
   },
-  { 
-    id: 'batteries', 
-    name: 'Batteries', 
-    icon: <Battery className='h-7 w-7 text-white' />,
-    gradient: 'from-green-500 to-emerald-500',
-    count: 124
+  {
+    id: "batteries",
+    name: "Batteries",
+    icon: <Battery className="h-7 w-7 text-white" />,
+    lightGradient: "from-green-500 to-emerald-500",
+    darkGradient: "from-green-600 to-emerald-600",
+    count: 124,
   },
-  { 
-    id: 'inverters', 
-    name: 'Inverters', 
-    icon: <Zap className='h-7 w-7 text-white' />,
-    gradient: 'from-indigo-500 to-violet-500',
-    count: 67
+  {
+    id: "inverters",
+    name: "Inverters",
+    icon: <Zap className="h-7 w-7 text-white" />,
+    lightGradient: "from-brand-blue to-sky-600",
+    darkGradient: "from-brand-blue to-sky-500",
+    count: 67,
   },
-  { 
-    id: 'lights', 
-    name: 'Street Lights', 
-    icon: <Lightbulb className='h-7 w-7 text-white' />,
-    gradient: 'from-amber-500 to-orange-500',
-    count: 98
+  {
+    id: "lights",
+    name: "Street Lights",
+    icon: <Lightbulb className="h-7 w-7 text-white" />,
+    lightGradient: "from-amber-500 to-orange-500",
+    darkGradient: "from-amber-500 to-orange-600",
+    count: 98,
   },
-  { 
-    id: 'cameras', 
-    name: 'Solar Cameras', 
-    icon: <Camera className='h-7 w-7 text-white' />,
-    gradient: 'from-blue-500 to-cyan-500',
-    count: 56
+  {
+    id: "cameras",
+    name: "Solar Cameras",
+    icon: <Camera className="h-7 w-7 text-white" />,
+    lightGradient: "from-brand-red to-rose-600",
+    darkGradient: "from-brand-red to-rose-500",
+    count: 56,
   },
-  { 
-    id: 'fans', 
-    name: 'Solar Fans', 
-    icon: <Wind className='h-7 w-7 text-white' />,
-    gradient: 'from-purple-500 to-pink-500',
-    count: 42
-  }
+  {
+    id: "fans",
+    name: "Solar Fans",
+    icon: <Wind className="h-7 w-7 text-white" />,
+    lightGradient: "from-violet-500 to-purple-600",
+    darkGradient: "from-violet-600 to-purple-700",
+    count: 42,
+  },
 ];
 
 export function CategoriesSection() {
   return (
-    <section className='py-16 md:py-20 bg-gradient-to-br from-purple-50 via-blue-50 to-orange-50 relative overflow-hidden'>
-      
+    <section className="py-14 md:py-20 bg-background relative overflow-hidden">
+      {/* Decorative blobs */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-20 right-20 w-72 h-72 bg-orange-100/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 left-20 w-80 h-80 bg-orange-100/20 rounded-full blur-3xl" />
+        <div className="absolute top-20 right-10 w-72 h-72 bg-brand-blue/5 dark:bg-brand-blue/8 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 left-10 w-80 h-80 bg-brand-red/5 dark:bg-brand-red/8 rounded-full blur-3xl" />
       </div>
 
-      <div className='container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10'>
-        
-        {/* Header */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
+        {/* ── Header ── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className='text-center mb-12 md:mb-16'
+          className="text-center mb-10 md:mb-14"
         >
-          <motion.div 
-            className='inline-flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-full font-semibold text-sm mb-4 shadow'
-          >
-            <Sparkles className='h-4 w-4' />
+          <motion.div className="inline-flex items-center gap-2 bg-brand-red text-white px-4 py-1.5 rounded-full font-semibold text-sm mb-4 shadow-brand-red">
+            <Sparkles className="h-4 w-4" />
             Explore Categories
           </motion.div>
-          
-          <h2 className='text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3'>
-            Explore Our Solar Solutions
+
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3">
+            Our Solar Solutions
           </h2>
-          
-          <p className='text-gray-600 max-w-2xl mx-auto text-base md:text-lg'>
-            From complete solar systems to cameras and fans, find everything you need for clean energy
+
+          <p className="text-muted-foreground max-w-2xl mx-auto text-sm md:text-base">
+            From complete solar systems to cameras and fans — everything you
+            need for clean, reliable energy.
           </p>
         </motion.div>
-        
-        {/* Categories Grid */}
-        <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 md:gap-6 mb-12'>
+
+        {/* ── Category Grid ── */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-10">
           {CATEGORIES.map((category, index) => (
             <motion.div
               key={category.id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              transition={{ duration: 0.5, delay: index * 0.08 }}
               viewport={{ once: true }}
-              whileHover={{ y: -8, scale: 1.03 }}
-              className='group'
+              whileHover={{ y: -6, scale: 1.02 }}
+              className="group"
             >
               <Link href={`/products?category=${category.id}`}>
-                <div className='relative bg-white/90 backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-white/50 cursor-pointer overflow-hidden h-full'>
-                  
-                  {/* Hover Gradient Overlay */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
-                  
+                <div
+                  className="relative bg-card border border-border rounded-2xl p-4 sm:p-5 md:p-7
+                  shadow-card-light dark:shadow-card-dark
+                  hover:border-brand-red/40 dark:hover:border-brand-red/30
+                  hover:shadow-brand-red/10 dark:hover:shadow-brand-red/20
+                  transition-all duration-300 cursor-pointer overflow-hidden h-full"
+                >
+                  {/* Hover overlay */}
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-br ${category.darkGradient} opacity-0 group-hover:opacity-[0.06] dark:group-hover:opacity-[0.12] transition-opacity duration-300`}
+                  />
+
                   {/* Icon */}
-                  <motion.div 
-                    className={`relative w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br ${category.gradient} flex items-center justify-center mb-4 md:mb-6 shadow-lg`}
-                    whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
-                    transition={{ duration: 0.5 }}
+                  <motion.div
+                    className={`relative w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br ${category.darkGradient} flex items-center justify-center mb-3 md:mb-4 shadow-lg`}
+                    whileHover={{ rotate: [0, -8, 8, 0], scale: 1.08 }}
+                    transition={{ duration: 0.4 }}
                   >
                     {category.icon}
-                    <motion.div
-                      className="absolute inset-0 bg-white/20 rounded-2xl"
-                      animate={{ opacity: [0, 0.3, 0] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    />
                   </motion.div>
-                  
+
                   {/* Content */}
-                  <div className='relative'>
-                    <h3 className='font-bold text-lg md:text-xl text-gray-900 mb-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-orange-600 group-hover:to-pink-600 transition-all duration-300'>
+                  <div className="relative">
+                    <h3
+                      className="font-bold text-sm md:text-base lg:text-lg text-foreground mb-1.5
+                      group-hover:text-brand-red transition-colors duration-300"
+                    >
                       {category.name}
                     </h3>
-                    
-                    <div className='flex items-center justify-between'>
-                      <span className='text-sm text-gray-600'>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">
                         {category.count}+ products
                       </span>
-                      
                       <motion.div
-                        className='opacity-0 group-hover:opacity-100 transition-opacity duration-300'
-                        whileHover={{ x: 5 }}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        whileHover={{ x: 4 }}
                       >
-                        <ArrowRight className='h-5 w-5 text-orange-500' />
+                        <ArrowRight className="h-4 w-4 text-brand-red" />
                       </motion.div>
                     </div>
                   </div>
@@ -157,7 +165,7 @@ export function CategoriesSection() {
           ))}
         </div>
 
-        {/* Bottom CTA */}
+        {/* ── Bottom CTA ── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -166,12 +174,12 @@ export function CategoriesSection() {
           className="text-center"
         >
           <Link href="/products">
-            <motion.button 
-              className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-full font-medium text-base md:text-lg shadow-sm hover:shadow transition-all duration-300"
+            <motion.button
+              className="inline-flex items-center gap-2 bg-brand-red hover:bg-brand-red-dark text-white px-8 py-3.5 rounded-full font-semibold text-sm md:text-base shadow-brand-red transition-all"
               whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
+              whileTap={{ scale: 0.97 }}
             >
-              <span>View All Products</span>
+              View All Products
               <ArrowRight className="h-5 w-5" />
             </motion.button>
           </Link>

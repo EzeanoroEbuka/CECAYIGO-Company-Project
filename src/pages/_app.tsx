@@ -16,28 +16,28 @@ const poppins = Poppins({
 });
 
 export default function App({ Component, pageProps }: AppProps) {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!auth.currentUser) {
+      signInAnonymously(auth).catch(() => {});
+    }
+  }, []);
+
   return (
     <>
       <Head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="facebook-domain-verification" content="5zd5smm7qzfhr8f72w8gfrfpuuiym7" />
+        <meta
+          name="facebook-domain-verification"
+          content="5zd5smm7qzfhr8f72w8gfrfpuuiym7"
+        />
       </Head>
-      {useEffect(() => {
-        if (typeof window === "undefined") return;
-        if (!auth.currentUser) {
-          signInAnonymously(auth).catch(() => {});
-        }
-      }, [])}
 
       {/* Google Analytics 4 */}
       <Script
         async
         src="https://www.googletagmanager.com/gtag/js?id=G-NL5JCQMFDM"
       />
-      <Script
-        id="google-analytics"
-        strategy="afterInteractive"
-      >
+      <Script id="google-analytics" strategy="afterInteractive">
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
@@ -66,10 +66,7 @@ export default function App({ Component, pageProps }: AppProps) {
       </Script>
 
       {/* OpenWidget */}
-      <Script
-        id="openwidget"
-        strategy="afterInteractive"
-      >
+      <Script id="openwidget" strategy="afterInteractive">
         {`
           window.__ow = window.__ow || {};
           window.__ow.organizationId = "5fd06b29-7fba-40ed-8dfa-55a46c8aef6d";

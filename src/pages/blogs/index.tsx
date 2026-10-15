@@ -115,14 +115,14 @@ export default function BlogsPage() {
 
   if (loading) {
     return (
-      <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-blue-50 to-purple-100'>
+      <div className='min-h-screen flex items-center justify-center bg-background'>
         <div className='text-center'>
           <motion.div 
-            className='w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full mx-auto mb-4'
+            className='w-16 h-16 border-4 border-brand-red border-t-transparent rounded-full mx-auto mb-4'
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
           />
-          <p className='text-gray-700 font-bold text-lg'>Loading articles...</p>
+          <p className='text-foreground font-bold text-lg'>Loading articles...</p>
         </div>
       </div>
     );
@@ -135,7 +135,7 @@ export default function BlogsPage() {
         <meta name='description' content='Discover the latest articles and insights from AYIGO.' />
       </Head>
 
-      <div className='min-h-screen bg-gradient-to-br from-orange-50 via-blue-50 to-purple-100 relative overflow-hidden'>
+      <div className='min-h-screen bg-background relative overflow-hidden'>
         
         {/* Dynamic Background Elements - Matching Hero */}
         <div className="absolute inset-0 pointer-events-none">
@@ -146,7 +146,7 @@ export default function BlogsPage() {
               rotate: [0, 180, 360]
             }}
             transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-orange-200/30 to-pink-200/30 rounded-full blur-3xl"
+            className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-brand-red/5 to-brand-blue/5 rounded-full blur-3xl"
           />
           <motion.div
             animate={{ 
@@ -155,7 +155,7 @@ export default function BlogsPage() {
               rotate: [360, 180, 0]
             }}
             transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-blue-200/40 to-purple-200/30 rounded-full blur-3xl"
+            className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-brand-blue/5 to-brand-red/5 rounded-full blur-3xl"
           />
           <motion.div
             animate={{ 
@@ -164,12 +164,12 @@ export default function BlogsPage() {
               scale: [1, 1.2, 1]
             }}
             transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-gradient-to-r from-purple-200/20 to-blue-200/20 rounded-full blur-3xl"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-gradient-to-r from-brand-blue/5 to-brand-red/5 rounded-full blur-3xl"
           />
         </div>
 
         {/* Header */}
-        <div className='bg-white/80 backdrop-blur-xl border-b border-white/50 relative z-10 shadow-lg'>
+        <div className='bg-card/95 backdrop-blur-xl border-b border-border relative z-10 shadow-sm'>
           <div className='container mx-auto px-4 py-8 md:py-12'>
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
@@ -177,7 +177,7 @@ export default function BlogsPage() {
               className='text-center mb-8'
             >
               <motion.div
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500 text-white px-4 py-2 rounded-full font-bold text-xs mb-4 shadow-xl"
+                className="inline-flex items-center gap-2 bg-brand-red text-white px-4 py-2 rounded-full font-bold text-xs mb-4 shadow-xl"
                 animate={{ 
                   scale: [1, 1.05, 1],
                   boxShadow: [
@@ -192,10 +192,10 @@ export default function BlogsPage() {
                 Our Blog
               </motion.div>
               
-              <h1 className='text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 leading-tight'>
+              <h1 className='text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 leading-tight'>
                 Latest
                 <motion.span 
-                  className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500"
+                  className="block text-transparent bg-clip-text bg-gradient-to-r from-brand-red to-brand-red-dark"
                   animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
                   transition={{ duration: 5, repeat: Infinity }}
                   style={{ backgroundSize: '300% 300%' }}
@@ -204,7 +204,7 @@ export default function BlogsPage() {
                 </motion.span>
               </h1>
               
-              <p className='text-gray-600 text-lg md:text-xl max-w-2xl mx-auto font-medium'>
+              <p className='text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto font-medium'>
                 Stay updated with expert advice and industry trends
               </p>
             </motion.div>
@@ -223,7 +223,7 @@ export default function BlogsPage() {
                   placeholder='Search articles...'
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className='w-full pl-14 pr-14 py-4 rounded-xl bg-white/90 backdrop-blur-sm border-2 border-white/50 focus:ring-2 focus:ring-orange-500/30 focus:bg-white focus:border-orange-300 transition-all text-gray-900 placeholder-gray-500 font-medium shadow-lg'
+                  className='w-full pl-14 pr-14 py-4 rounded-xl bg-input border border-border focus:ring-2 focus:ring-brand-red/20 focus:bg-background focus:border-brand-red transition-all text-foreground placeholder:text-muted-foreground font-medium shadow-lg'
                 />
                 {searchTerm && (
                   <motion.button
@@ -241,7 +241,7 @@ export default function BlogsPage() {
         </div>
 
         {/* Categories */}
-        <div className='bg-white/70 backdrop-blur-xl border-b border-white/50 sticky top-0 z-20 shadow-md'>
+        <div className='bg-card/95 backdrop-blur-xl border-b border-border sticky top-0 z-20 shadow-sm'>
           <div className='container mx-auto px-4 py-5'>
             <div className='flex gap-3 overflow-x-auto pb-2 scrollbar-hide'>
               {categories.map((category, index) => (
@@ -255,8 +255,8 @@ export default function BlogsPage() {
                   whileTap={{ scale: 0.95 }}
                   className={`px-5 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all flex-shrink-0 shadow-lg ${
                     selectedCategory === category
-                      ? 'bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500 text-white'
-                      : 'bg-white/90 text-gray-700 hover:bg-white border-2 border-white/50'
+                      ? 'bg-brand-red text-white'
+                      : 'bg-card text-foreground hover:bg-muted border border-border'
                   }`}
                 >
                   {category}
@@ -278,8 +278,8 @@ export default function BlogsPage() {
             animate={{ opacity: 1 }}
             className='flex items-center gap-3'
           >
-            <div className='h-1 w-12 bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500 rounded-full' />
-            <p className='text-gray-700 text-sm font-bold'>
+            <div className='h-1 w-12 bg-gradient-to-r from-brand-red to-brand-red-dark rounded-full' />
+            <p className='text-foreground text-sm font-bold'>
               {filteredPosts.length} {filteredPosts.length === 1 ? 'article' : 'articles'} found
             </p>
           </motion.div>
@@ -301,7 +301,7 @@ export default function BlogsPage() {
                     className='h-full group'
                   >
                     <Link href={`/blogs/${post.id}`}>
-                      <div className='relative bg-white/80 backdrop-blur-xl rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 border-2 border-white/50 h-full flex flex-col group-hover:border-orange-200'>
+                      <div className='relative bg-card rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-border h-full flex flex-col hover:border-brand-red/30'>
                         
                         {/* Image */}
                         <div className='relative w-full' style={{ paddingBottom: '60%' }}>
@@ -322,7 +322,7 @@ export default function BlogsPage() {
                           {/* Category Badge */}
                           {post.category && (
                             <motion.div 
-                              className='absolute top-4 left-4 bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-xl z-10'
+                              className='absolute top-4 left-4 bg-brand-red text-white text-xs font-bold px-4 py-2 rounded-xl shadow-xl z-10'
                               whileHover={{ scale: 1.05 }}
                             >
                               {post.category}
@@ -344,7 +344,7 @@ export default function BlogsPage() {
                             whileHover={{ scale: 1, rotate: 0 }}
                             transition={{ duration: 0.3 }}
                           >
-                            <ArrowRight className="h-5 w-5 text-orange-600" />
+                            <ArrowRight className="h-5 w-5 text-brand-red" />
                           </motion.div>
                         </div>
 
@@ -363,23 +363,23 @@ export default function BlogsPage() {
                           </div>
 
                           {/* Title */}
-                          <h3 className='font-bold text-lg md:text-xl text-gray-900 mb-3 line-clamp-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-orange-600 group-hover:via-pink-600 group-hover:to-purple-600 transition-all leading-tight min-h-[56px]'>
+                          <h3 className='font-bold text-lg md:text-xl text-foreground mb-3 line-clamp-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r  transition-all leading-tight min-h-[56px]'>
                             {post.title}
                           </h3>
 
                           {/* Snippet */}
-                          <p className='text-sm text-gray-600 line-clamp-3 leading-relaxed mb-5 flex-grow'>
+                          <p className='text-sm text-muted-foreground line-clamp-3 leading-relaxed mb-5 flex-grow'>
                             {post.snippet}
                           </p>
 
                           {/* Footer */}
-                          <div className='flex items-center justify-between pt-4 border-t-2 border-gray-100 group-hover:border-orange-100 transition-colors'>
+                          <div className='flex items-center justify-between pt-4 border-t border-border transition-colors'>
                             <motion.div 
-                              className='bg-gradient-to-r from-orange-600 via-pink-600 to-purple-600 bg-clip-text text-transparent font-bold text-sm flex items-center gap-1.5 group-hover:gap-3 transition-all'
+                              className='bg-gradient-to-r from-brand-red to-brand-red-dark bg-clip-text text-transparent font-bold text-sm flex items-center gap-1.5 group-hover:gap-3 transition-all'
                               whileHover={{ x: 5 }}
                             >
                               <span>Read More</span>
-                              <ArrowRight className='h-4 w-4 text-orange-600' />
+                              <ArrowRight className='h-4 w-4 text-brand-red' />
                             </motion.div>
                             
                             <motion.div
@@ -404,18 +404,18 @@ export default function BlogsPage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
             >
-              <div className='max-w-md mx-auto bg-white/80 backdrop-blur-xl p-10 rounded-3xl border-2 border-white/50 shadow-2xl'>
+              <div className='max-w-md mx-auto bg-card p-10 rounded-3xl border border-border shadow-lg'>
                 <motion.div 
-                  className='w-20 h-20 bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6'
+                  className='w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6'
                   animate={{ rotate: [0, 360] }}
                   transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                 >
                   <Search className='h-10 w-10 text-orange-500' />
                 </motion.div>
-                <h3 className='text-2xl font-bold text-gray-900 mb-4'>
+                <h3 className='text-2xl font-bold text-foreground mb-4'>
                   No articles found
                 </h3>
-                <p className='text-gray-600 mb-8 leading-relaxed'>
+                <p className='text-muted-foreground mb-8 leading-relaxed'>
                   {searchTerm 
                     ? `No results for "${searchTerm}". Try different keywords.`
                     : 'Check back soon for new content!'
@@ -426,7 +426,7 @@ export default function BlogsPage() {
                     onClick={() => setSearchTerm('')}
                     whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500 hover:from-orange-600 hover:via-pink-600 hover:to-purple-600 text-white px-8 py-3 rounded-xl font-bold shadow-xl transition-all"
+                    className="bg-gradient-to-r from-brand-red to-brand-red-dark hover:from-orange-600 hover:via-pink-600 hover:to-purple-600 text-white px-8 py-3 rounded-xl font-bold shadow-xl transition-all"
                   >
                     Clear Search
                   </motion.button>

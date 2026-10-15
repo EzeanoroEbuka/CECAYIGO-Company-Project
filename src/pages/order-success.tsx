@@ -34,7 +34,7 @@ export default function OrderSuccessPage() {
         <title>Order Success | Cec - Shop Easy</title>
         <meta name="description" content="Your order has been placed successfully" />
       </Head>
-      <div className="min-h-screen bg-white dark:bg-gray-900 py-12">
+      <div className="min-h-screen bg-background py-12">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -43,43 +43,43 @@ export default function OrderSuccessPage() {
             className="max-w-2xl mx-auto text-center"
           >
             <div className="mb-8 flex justify-center">
-              <div className="rounded-full bg-green-100 dark:bg-green-900/30 p-6">
-                <CheckCircle className="h-16 w-16 text-green-600 dark:text-green-400" />
+              <div className="rounded-full bg-green-500/15 p-6">
+                <CheckCircle className="h-16 w-16 text-green-500" />
               </div>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
               Order Placed Successfully
             </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
+            <p className="text-lg text-muted-foreground mb-6">
               Thank you for your order. Your order has been received and is being processed.
             </p>
             {orderId && (
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-                Reference: <span className="font-semibold text-gray-900 dark:text-white">{orderId}</span>
+              <p className="text-sm text-muted-foreground mb-6">
+                Reference: <span className="font-semibold text-foreground">{orderId}</span>
               </p>
             )}
             {totals && (
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 mb-8 text-left">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Order Summary</h2>
+              <div className="bg-muted rounded-lg p-6 mb-8 text-left">
+                <h2 className="text-xl font-bold text-foreground mb-4">Order Summary</h2>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Subtotal</span>
-                    <span className="font-medium text-gray-900 dark:text-white">₦{totals.subtotal.toFixed(2)}</span>
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="font-medium text-foreground">₦{totals.subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Shipping</span>
-                    <span className="font-medium text-gray-900 dark:text-white">
+                    <span className="text-muted-foreground">Shipping</span>
+                    <span className="font-medium text-foreground">
                       {totals.shipping === 0 ? "Free" : `₦${totals.shipping.toFixed(2)}`}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Tax</span>
-                    <span className="font-medium text-gray-900 dark:text-white">₦{totals.tax.toFixed(2)}</span>
+                    <span className="text-muted-foreground">Tax</span>
+                    <span className="font-medium text-foreground">₦{totals.tax.toFixed(2)}</span>
                   </div>
-                  <div className="border-t border-gray-200 dark:border-gray-700 pt-3 mt-3">
+                  <div className="border-t border-border pt-3 mt-3">
                     <div className="flex justify-between">
-                      <span className="font-bold text-gray-900 dark:text-white">Total</span>
-                      <span className="font-bold text-primary dark:text-primary">₦{totals.total.toFixed(2)}</span>
+                      <span className="font-bold text-foreground">Total</span>
+                      <span className="font-bold text-brand-red">₦{totals.total.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -87,7 +87,7 @@ export default function OrderSuccessPage() {
             )}
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/products">
-                <Button className="bg-primary hover:bg-primary/90 text-white px-8 py-6 rounded-lg text-lg font-medium">
+                <Button className="bg-brand-red hover:bg-brand-red-dark text-white px-8 py-6 rounded-lg text-lg font-medium">
                   Continue Shopping
                 </Button>
               </Link>

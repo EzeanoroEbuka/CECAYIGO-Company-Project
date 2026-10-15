@@ -210,7 +210,7 @@ export default function CartPage() {
                 Reference: <span className="font-semibold text-gray-900">{orderId}</span>
               </div>
             )}
-            <div className="mt-2 rounded-lg border p-4 bg-gray-50">
+            <div className="mt-2 rounded-lg border p-4 bg-muted">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Subtotal</span>
                 <span className="font-medium">₦{placedTotals.subtotal.toFixed(2)}</span>
@@ -232,7 +232,7 @@ export default function CartPage() {
             </div>
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Button
-                className="w-full bg-primary hover:bg-primary/90"
+                className="w-full bg-brand-red hover:bg-brand-red-dark"
                 onClick={() => {
                   setOrderComplete(false);
                   try {
@@ -271,10 +271,10 @@ export default function CartPage() {
           </DialogContent>
         </Dialog>
       )}
-      <div className="min-h-screen bg-white dark:bg-gray-900 py-12">
+      <div className="min-h-screen bg-background py-12">
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Shopping Cart</h1>
+            <h1 className="text-3xl font-bold text-foreground">Shopping Cart</h1>
             <Link href="/products">
               <Button variant="outline" className="flex items-center gap-2">
                 <ShoppingCart className="h-4 w-4" />
@@ -286,12 +286,12 @@ export default function CartPage() {
           {cartItems.length === 0 ? (
             <div className="text-center py-16">
               <div className="mb-6 flex justify-center">
-                <ShoppingCart className="h-16 w-16 text-gray-400 dark:text-gray-600" />
+                <ShoppingCart className="h-16 w-16 text-muted-foreground" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Your cart is empty</h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-8">Looks like you haven't added any products to your cart yet.</p>
+              <h2 className="text-2xl font-bold text-foreground mb-4">Your cart is empty</h2>
+              <p className="text-muted-foreground mb-8">Looks like you haven't added any products to your cart yet.</p>
               <Link href="/products">
-                <Button className="bg-primary hover:bg-primary/90 text-white px-8 py-6 rounded-lg text-lg font-medium transition-all duration-300">
+                <Button className="bg-brand-red hover:bg-brand-red-dark text-white px-8 py-6 rounded-lg text-lg font-medium transition-all duration-300">
                   Browse Products
                 </Button>
               </Link>
@@ -311,7 +311,7 @@ export default function CartPage() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="flex items-center py-4 border-b border-gray-200 dark:border-gray-700 last:border-0"
+                        className="flex items-center py-4 border-b border-border last:border-0"
                       >
                         <div className="relative h-20 w-20 rounded-md overflow-hidden flex-shrink-0">
                           <Image
@@ -323,8 +323,8 @@ export default function CartPage() {
                         </div>
                         
                         <div className="ml-4 flex-grow min-w-0">
-                          <h3 className="font-medium text-gray-900 dark:text-white line-clamp-2 break-words">{item.name}</h3>
-                          <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                          <h3 className="font-medium text-foreground line-clamp-2 break-words">{item.name}</h3>
+                          <div className="flex items-center text-sm text-muted-foreground">
                             <span>
                             ₦{(item.discountedPrice || item.price).toFixed(2)}
                               {item.discountedPrice && (
@@ -356,13 +356,13 @@ export default function CartPage() {
                         </div>
                         
                         <div className="ml-6 text-right">
-                          <div className="font-medium text-gray-900 dark:text-white">
+                          <div className="font-medium text-foreground">
                           {((item.discountedPrice || item.price) * item.quantity).toFixed(2)}
                           </div>
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 p-0 h-auto"
+                            className="text-brand-red hover:text-brand-red-dark p-0 h-auto"
                             onClick={() => removeFromCart(item.id)}
                           >
                             <Trash2 className="h-4 w-4 mr-1" />
@@ -383,29 +383,29 @@ export default function CartPage() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Subtotal</span>
-                      <span className="font-medium text-gray-900 dark:text-white">₦{subtotal.toFixed(2)}</span>
+                      <span className="text-muted-foreground">Subtotal</span>
+                      <span className="font-medium text-foreground">₦{subtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Shipping</span>
-                      <span className="font-medium text-gray-900 dark:text-white">
+                      <span className="text-muted-foreground">Shipping</span>
+                      <span className="font-medium text-foreground">
                         {shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}
                       </span>
                     </div>
                     {/* <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Tax (7%)</span>
-                      <span className="font-medium text-gray-900 dark:text-white">₦{tax.toFixed(2)}</span>
+                      <span className="text-muted-foreground">Tax (7%)</span>
+                      <span className="font-medium text-foreground">₦{tax.toFixed(2)}</span>
                     </div> */}
-                    <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                    <div className="border-t border-border pt-4 mt-4">
                       <div className="flex justify-between">
-                        <span className="font-bold text-gray-900 dark:text-white">Total</span>
-                        <span className="font-bold text-primary dark:text-primary">₦{total.toFixed(2)}</span>
+                        <span className="font-bold text-foreground">Total</span>
+                        <span className="font-bold text-brand-red">₦{total.toFixed(2)}</span>
                       </div>
                     </div>
                   </CardContent>
                   <CardFooter className="flex flex-col gap-3">
                     <Button 
-                      className="w-full bg-primary hover:bg-primary/90 text-white py-6 flex items-center justify-center gap-2 rounded-2xl"
+                      className="w-full bg-brand-red hover:bg-brand-red-dark text-white py-6 flex items-center justify-center gap-2 rounded-2xl"
                       onClick={() => setCheckoutStep(2)}
                     >
                       Proceed to Checkout
@@ -440,7 +440,7 @@ export default function CartPage() {
                   <form onSubmit={handleSubmitOrder} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <label htmlFor="name" className="block text-sm font-medium text-foreground/80">
                           Full Name
                         </label>
                         <Input
@@ -453,7 +453,7 @@ export default function CartPage() {
                       </div>
                       
                       <div className="space-y-2">
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <label htmlFor="email" className="block text-sm font-medium text-foreground/80">
                           Email Address
                         </label>
                         <Input
@@ -467,7 +467,7 @@ export default function CartPage() {
                       </div>
                       
                       <div className="space-y-2">
-                        <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <label htmlFor="phone" className="block text-sm font-medium text-foreground/80">
                           Phone Number
                         </label>
                         <Input
@@ -480,7 +480,7 @@ export default function CartPage() {
                       </div>
                       
                       <div className="space-y-2">
-                        <label htmlFor="address" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <label htmlFor="address" className="block text-sm font-medium text-foreground/80">
                           Address
                         </label>
                         <Input
@@ -493,7 +493,7 @@ export default function CartPage() {
                       </div>
                       
                       <div className="space-y-2">
-                        <label htmlFor="city" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <label htmlFor="city" className="block text-sm font-medium text-foreground/80">
                           City
                         </label>
                         <Input
@@ -507,7 +507,7 @@ export default function CartPage() {
                       
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label htmlFor="state" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                          <label htmlFor="state" className="block text-sm font-medium text-foreground/80">
                             State
                           </label>
                           <Input
@@ -520,7 +520,7 @@ export default function CartPage() {
                         </div>
                         
                         <div className="space-y-2">
-                          <label htmlFor="zip" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                          <label htmlFor="zip" className="block text-sm font-medium text-foreground/80">
                             ZIP Code
                           </label>
                           <Input
@@ -534,7 +534,7 @@ export default function CartPage() {
                       </div>
                       
                       <div className="space-y-2 md:col-span-2">
-                        <label htmlFor="notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <label htmlFor="notes" className="block text-sm font-medium text-foreground/80">
                           Order Notes (Optional)
                         </label>
                         <Textarea
@@ -547,17 +547,17 @@ export default function CartPage() {
                       </div>
                     </div>
                     
-                    <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Payment Method</h3>
-                      <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    <div className="pt-4 border-t border-border">
+                      <h3 className="text-lg font-bold text-foreground mb-4">Payment Method</h3>
+                      <p className="text-muted-foreground mb-4">
                         After submitting your order, our team will contact you to arrange payment and delivery details.
                       </p>
                       
-                      <div className="flex items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg mb-6">
+                      <div className="flex items-center p-4 bg-muted  rounded-lg mb-6">
                         <CreditCard className="h-6 w-6 text-primary mr-3" />
                         <div>
-                          <h4 className="font-medium text-gray-900 dark:text-white">Payment on Delivery</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                          <h4 className="font-medium text-foreground">Payment on Delivery</h4>
+                          <p className="text-sm text-muted-foreground">
                             Pay when you receive your order
                           </p>
                         </div>
@@ -575,7 +575,7 @@ export default function CartPage() {
                       </Button>
                       <Button 
                         type="submit" 
-                        className="bg-primary hover:bg-primary/90 text-white py-6 flex-1 flex items-center justify-center gap-2"
+                        className="bg-brand-red hover:bg-brand-red-dark text-white py-6 flex-1 flex items-center justify-center gap-2"
                         disabled={isSubmitting}
                       >
                         {isSubmitting ? (

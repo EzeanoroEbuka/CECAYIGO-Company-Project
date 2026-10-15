@@ -2,162 +2,364 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Dark mode prefers-color-scheme */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #2E3447; /* Lighter charcoal for dark mode */
-    --foreground: #E8ECEF; /* Light gray for text */
-  }
-}
+/* ============================================================
+   CEC AYIGO BRAND THEME
+   Brand colors: Cream (#FAF5EB), Sky Blue (#38BDF8), Red (#E51E25)
+   Dark mode: Deep navy-slate backgrounds with brand accents
+   ============================================================ */
 
-/* Body styles */
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: 'Poppins', sans-serif;
-}
-
-/* Utility for text balance */
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
-
-/* Base layer for color variables */
 @layer base {
   :root {
-    --background: 40 20% 98%; /* #F9F5F0, creamy off-white */
-    --foreground: 240 30% 20%; /* #2E3A59, deep navy */
-    --card: 40 15% 95%; /* #F0ECE5 */
-    --card-foreground: 240 30% 20%; /* #2E3A59 */
-    --popover: 40 15% 95%; /* #F0ECE5 */
-    --popover-foreground: 240 30% 20%; /* #2E3A59 */
-    --primary: 10 80% 55%; /* #F0544F, lively coral */
-    --primary-foreground: 0 0% 100%; /* #FFFFFF */
-    --secondary: 180 40% 60%; /* #6DB1BF, soft teal */
-    --secondary-foreground: 240 30% 20%; /* #2E3A59 */
-    --muted: 40 10% 90%; /* #E6E3DB */
-    --muted-foreground: 240 20% 40%; /* #666B85 */
-    --accent: 50 90% 55%; /* #FFC107, bright yellow */
-    --accent-foreground: 240 30% 20%; /* #2E3A59 */
-    --destructive: 0 70% 45%; /* #C0392B */
-    --destructive-foreground: 0 0% 100%; /* #FFFFFF */
-    --border: 40 10% 85%; /* #D9D6CF */
-    --input: 40 10% 85%; /* #D9D6CF */
-    --ring: 10 80% 55%; /* #F0544F */
-    --radius: 0.5rem;
+    /* Light Mode — Cream/White base with brand accents */
+    --background: 40 50% 97%; /* #FAF5EB — brand cream */
+    --foreground: 220 30% 12%; /* #151C2E — deep navy text */
+
+    --card: 0 0% 100%; /* pure white cards */
+    --card-foreground: 220 30% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 30% 12%;
+
+    --primary: 357 78% 50%; /* #E51E25 — brand red */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 199 90% 60%; /* #38BDF8 — sky blue */
+    --secondary-foreground: 220 30% 12%;
+
+    --muted: 40 30% 92%; /* #F0EAD6 — light cream */
+    --muted-foreground: 220 15% 45%; /* muted text */
+
+    --accent: 199 90% 60%; /* sky blue accent */
+    --accent-foreground: 220 30% 12%;
+
+    --destructive: 357 78% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 40 20% 85%; /* #DDD5C0 — cream border */
+    --input: 40 20% 88%;
+    --ring: 357 78% 50%; /* red ring */
+    --radius: 0.625rem;
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 30% 12%;
+    --sidebar-primary: 357 78% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 40 30% 92%;
+    --sidebar-accent-foreground: 220 30% 12%;
+    --sidebar-border: 40 20% 85%;
+    --sidebar-ring: 357 78% 50%;
   }
 
   .dark {
-    --background: 225 15% 24%; /* #2E3447, lighter charcoal */
-    --foreground: 210 20% 95%; /* #E8ECEF, light gray */
-    --card: 225 15% 28%; /* #3B4259, slightly lighter charcoal */
-    --card-foreground: 210 20% 95%; /* #E8ECEF */
-    --popover: 225 15% 28%; /* #3B4259 */
-    --popover-foreground: 210 20% 95%; /* #E8ECEF */
-    --primary: 10 85% 60%; /* #FF6B6B, vibrant coral */
-    --primary-foreground: 0 0% 100%; /* #FFFFFF */
-    --secondary: 180 50% 65%; /* #7CC0CC, brighter teal */
-    --secondary-foreground: 210 20% 95%; /* #E8ECEF */
-    --muted: 225 15% 32%; /* #48506D */
-    --muted-foreground: 225 10% 70%; /* #A3AFC7 */
-    --accent: 50 95% 60%; /* #FFCA28, vivid yellow */
-    --accent-foreground: 240 30% 20%; /* #2E3A59 */
-    --destructive: 0 65% 45%; /* #CC3F33 */
-    --destructive-foreground: 0 0% 100%; /* #FFFFFF */
-    --border: 225 15% 35%; /* #535C7A */
-    --input: 225 15% 35%; /* #535C7A */
-    --ring: 10 85% 60%; /* #FF6B6B */
+    /* Dark Mode — Deep navy-slate with cream/blue brand accents */
+    --background: 222 47% 8%; /* #0B0F1A — very deep navy */
+    --foreground: 40 50% 94%; /* #F7F0E2 — warm cream text */
+
+    --card: 222 40% 12%; /* #111827-ish — dark card */
+    --card-foreground: 40 50% 94%;
+
+    --popover: 222 40% 12%;
+    --popover-foreground: 40 50% 94%;
+
+    --primary: 357 85% 58%; /* #F0282F — brighter red */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 199 92% 62%; /* #3CC4FF — bright sky blue */
+    --secondary-foreground: 222 47% 8%;
+
+    --muted: 222 35% 18%; /* #1E2840 — subtle dark muted */
+    --muted-foreground: 40 20% 65%; /* warm gray text */
+
+    --accent: 199 92% 62%;
+    --accent-foreground: 222 47% 8%;
+
+    --destructive: 357 85% 58%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 30% 22%; /* #242E45 — subtle dark border */
+    --input: 222 30% 22%;
+    --ring: 199 92% 62%; /* blue ring in dark mode */
+
+    /* Sidebar */
+    --sidebar-background: 222 40% 10%;
+    --sidebar-foreground: 40 50% 94%;
+    --sidebar-primary: 357 85% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 35% 18%;
+    --sidebar-accent-foreground: 40 50% 94%;
+    --sidebar-border: 222 30% 22%;
+    --sidebar-ring: 199 92% 62%;
   }
 
   * {
     @apply border-border;
   }
 
-  body {
-    @apply bg-background text-foreground;
-    font-family: 'Poppins', sans-serif;
+  html {
+    @apply scroll-smooth;
+    overflow-x: hidden;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Poppins', sans-serif;
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: "Poppins", sans-serif;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Poppins", sans-serif;
     font-weight: 700;
   }
 }
 
-/* Animations */
+/* ============================================================
+   TYPOGRAPHY UTILITIES
+   ============================================================ */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Brand gradient text */
+  .text-brand-gradient {
+    @apply bg-gradient-to-r from-brand-red via-brand-cream to-brand-blue bg-clip-text text-transparent;
+  }
+
+  /* Sky-to-cream gradient */
+  .bg-brand-section {
+    background: linear-gradient(135deg, #0b0f1a 0%, #111827 50%, #0f172a 100%);
+  }
+
+  /* Cream section for light mode */
+  .bg-cream-section {
+    background: linear-gradient(135deg, #faf5eb 0%, #f0ead6 50%, #e8dec8 100%);
+  }
+
+  /* Card glass effect */
+  .card-glass {
+    @apply bg-white/90 dark:bg-white/5 backdrop-blur-sm border border-white/60 dark:border-white/10;
+  }
+
+  /* Glow effects */
+  .glow-red {
+    box-shadow: 0 0 20px rgba(229, 30, 37, 0.3);
+  }
+
+  .glow-blue {
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+  }
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 @keyframes slideInRight {
-  from { transform: translateX(50px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(var(--primary), 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(var(--primary), 0); }
-  100% { box-shadow: 0 0 0 0 rgba(var(--primary), 0); }
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
 }
 
-@keyframes glow {
-  0% { filter: brightness(1); }
-  50% { filter: brightness(1.2); }
-  100% { filter: brightness(1); }
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(229, 30, 37, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(229, 30, 37, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(229, 30, 37, 0);
+  }
 }
 
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-in-out;
 }
-
+.animate-slideInUp {
+  animation: slideInUp 0.6s ease-out forwards;
+}
 .animate-slideInRight {
   animation: slideInRight 0.8s ease-out forwards;
 }
-
-.animate-pulse-slow {
-  animation: pulse 3s infinite;
-}
-
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
-
-.animate-glow {
-  animation: glow 3s ease-in-out infinite;
+.animate-pulse-ring {
+  animation: pulse-ring 3s infinite;
 }
 
-/* Components */
+/* Skeleton shimmer */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.15) 50%,
+    transparent 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ============================================================
+   COMPONENT UTILITIES
+   ============================================================ */
 @layer components {
   .container {
     @apply mx-auto px-4 md:px-6 lg:px-8 max-w-7xl w-full;
   }
 
+  /* Product card — fully dark-mode aware */
   .product-card {
-    @apply bg-card text-card-foreground rounded-lg shadow-md hover:shadow-lg transition-shadow p-4;
+    @apply bg-card text-card-foreground rounded-2xl shadow-md hover:shadow-xl
+           transition-all duration-300 border border-border overflow-hidden;
   }
 
-  .product-card:hover {
-    @apply animate-glow;
+  /* Section heading badge */
+  .section-badge {
+    @apply inline-flex items-center gap-2 px-4 py-1.5 rounded-full
+           font-semibold text-sm shadow-sm;
   }
 
+  /* CTA button — brand red */
   .btn-primary {
-    @apply bg-primary text-primary-foreground rounded-md px-6 py-2 hover:bg-opacity-90 transition animate-pulse-slow;
+    @apply bg-brand-red hover:bg-brand-red-dark text-white font-semibold
+           px-6 py-3 rounded-2xl transition-all duration-200 shadow-sm
+           hover:shadow-md active:scale-95 inline-flex items-center gap-2;
   }
 
-  .promo-banner {
-    @apply bg-accent text-accent-foreground p-4 rounded-md animate-slideInRight;
+  /* CTA button — sky blue */
+  .btn-secondary {
+    @apply bg-brand-blue hover:bg-brand-blue-dark text-white font-semibold
+           px-6 py-3 rounded-2xl transition-all duration-200 shadow-sm
+           hover:shadow-md active:scale-95 inline-flex items-center gap-2;
   }
 
-  .filter-btn {
-    @apply bg-secondary text-secondary-foreground rounded-md px-4 py-2 hover:bg-opacity-80 transition;
+  /* Ghost / outline button */
+  .btn-ghost {
+    @apply bg-transparent border border-border hover:bg-muted text-foreground
+           font-semibold px-6 py-3 rounded-2xl transition-all duration-200;
   }
+
+  /* Section layout */
+  .section-padding {
+    @apply py-14 md:py-20 lg:py-24;
+  }
+
+  /* Dark glass card */
+  .dark-card {
+    @apply bg-card border border-border rounded-2xl shadow-lg;
+  }
+
+  /* Input field */
+  .input-field {
+    @apply w-full bg-input border border-border text-foreground placeholder:text-muted-foreground
+           rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring
+           transition-colors;
+  }
+}
+
+/* ============================================================
+   SCROLLBAR STYLING (dark mode)
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-muted;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--secondary));
+}
+
+/* ============================================================
+   MOBILE TOUCH IMPROVEMENTS
+   ============================================================ */
+
+/* Remove default tap highlight (we provide our own feedback) */
+button,
+a,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation; /* eliminates 300ms tap delay on mobile */
+}
+
+/* Universal press feedback for ALL interactive elements.
+   This fires instantly on touch — no JS, no delay. */
+button:active:not(:disabled),
+a:active,
+[role="button"]:active {
+  opacity: 0.82;
+  transform: scale(0.97);
+  transition:
+    transform 0.08s ease,
+    opacity 0.08s ease;
+}
+
+/* Don't squash motion-animated elements — Framer handles those */
+.framer-motion-button:active {
+  transform: none;
+}
+
+/* Focus visible for accessibility */
+:focus-visible {
+  @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
 }

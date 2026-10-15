@@ -93,11 +93,11 @@ const ProductCard = React.memo(({
       className={viewMode === 'list' ? 'w-full' : ''}
     >
       <Link href={`/products/${product.id}`}>
-        <Card className={`group overflow-hidden border border-white/60 hover:shadow-2xl hover:border-orange-300 transition-all duration-300 bg-white/80 backdrop-blur-sm h-full ${
+        <Card className={`group overflow-hidden border border-border hover:shadow-2xl hover:border-orange-300 transition-all duration-300 bg-card backdrop-blur-sm h-full ${
           viewMode === 'list' ? 'flex' : 'flex flex-col'
         }`}>
           {/* Product Image */}
-          <div className={`relative overflow-hidden bg-gradient-to-br from-gray-50 to-white flex-shrink-0 ${
+          <div className={`relative overflow-hidden bg-muted flex-shrink-0 ${
             viewMode === 'list' 
               ? 'w-32 h-32' 
               : 'w-full aspect-square'
@@ -105,7 +105,7 @@ const ProductCard = React.memo(({
             {/* Loading Skeleton */}
             {!imageLoaded && (
               <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+                <div className="w-8 h-8 border-4 border-brand-red border-t-transparent rounded-full animate-spin" />
               </div>
             )}
             
@@ -139,12 +139,12 @@ const ProductCard = React.memo(({
             {/* Favorite Button */}
             <button
               onClick={(e) => onToggleFavorite(product.id, e)}
-              className="absolute top-2 right-2 p-2 bg-white/90 rounded-full shadow-sm hover:shadow-md transition-all duration-200 opacity-0 group-hover:opacity-100 z-10"
+              className="absolute top-2 right-2 p-2 bg-card rounded-full shadow-sm hover:shadow-md transition-all duration-200 opacity-0 group-hover:opacity-100 z-10"
               aria-label="Add to favorites"
             >
               <Heart 
                 size={16} 
-                className={`${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} 
+                className={`${isFavorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} 
               />
             </button>
 
@@ -152,7 +152,7 @@ const ProductCard = React.memo(({
             <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hidden sm:block z-10">
               <Button
                 size="sm"
-                className="w-full h-8 text-xs bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white rounded-lg shadow-lg"
+                className="w-full h-8 text-xs bg-gradient-to-r from-orange-500 to-pink-500  text-white rounded-lg shadow-lg"
                 onClick={(e) => onAddToCart(product, e)}
               >
                 <ShoppingCart size={12} className="mr-1" />
@@ -164,7 +164,7 @@ const ProductCard = React.memo(({
           {/* Product Info */}
           <CardContent className={`p-4 flex-1 flex flex-col ${viewMode === 'list' ? 'justify-between' : ''}`}>
             <div className="flex-1">
-              <h3 className={`font-semibold text-gray-900 line-clamp-2 mb-2 ${
+              <h3 className={`font-semibold text-foreground line-clamp-2 mb-2 ${
                 viewMode === 'list' ? 'text-base' : 'text-sm'
               }`}>
                 {product.name}
@@ -180,13 +180,13 @@ const ProductCard = React.memo(({
                         size={14}
                         className={`${
                           i < product.rating! 
-                            ? 'fill-yellow-400 text-yellow-400' 
-                            : 'text-gray-300'
+                            ? 'fill-amber-400 text-amber-400' 
+                            : 'text-muted-foreground'
                         }`}
                       />
                     ))}
                   </div>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-muted-foreground">
                     ({product.reviews})
                   </span>
                 </div>
@@ -197,15 +197,15 @@ const ProductCard = React.memo(({
             <div className="flex items-center gap-2 mb-3">
               {product.discountedPrice ? (
                 <>
-                  <span className="font-bold text-orange-600">
+                  <span className="font-bold text-brand-red">
                     ₦{product.discountedPrice.toLocaleString()}
                   </span>
-                  <span className="text-gray-500 line-through text-sm">
+                  <span className="text-muted-foreground line-through text-sm">
                     ₦{product.price.toLocaleString()}
                   </span>
                 </>
               ) : (
-                <span className="font-bold text-gray-900">
+                <span className="font-bold text-foreground">
                   ₦{product.price.toLocaleString()}
                 </span>
               )}
@@ -214,7 +214,7 @@ const ProductCard = React.memo(({
             {/* Mobile Add to Cart */}
             <Button
               size="sm"
-              className="w-full h-9 text-sm sm:hidden bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white rounded-lg shadow-lg"
+              className="w-full h-9 text-sm sm:hidden bg-gradient-to-r from-orange-500 to-pink-500  text-white rounded-lg shadow-lg"
               onClick={(e) => onAddToCart(product, e)}
             >
               <ShoppingCart size={14} className="mr-2" />
@@ -348,8 +348,8 @@ export default function ProductsPage() {
 
   if (loading) {
     return (
-      <div className='min-h-screen bg-gradient-to-br from-orange-50 via-blue-50 to-purple-100'>
-        <div className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-white/60">
+      <div className='min-h-screen bg-background'>
+        <div className="bg-card/90 backdrop-blur-md shadow-sm border-b border-border">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center max-w-3xl mx-auto">
               <div className="animate-pulse space-y-4">
@@ -374,7 +374,7 @@ export default function ProductsPage() {
         <link rel="dns-prefetch" href="https://images.pexels.com" />
       </Head>
 
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-blue-50 to-purple-100 relative overflow-hidden">
+      <div className="min-h-screen bg-background relative overflow-hidden">
         {/* Background Elements - Matching Hero Section */}
         <div className="absolute inset-0 pointer-events-none">
           <motion.div
@@ -390,21 +390,21 @@ export default function ProductsPage() {
         </div>
 
         {/* Header Section */}
-        <div className="bg-white/70 backdrop-blur-sm shadow-sm border-b border-white/60 relative z-10">
+        <div className="bg-card/90 backdrop-blur-md shadow-sm border-b border-border relative z-10">
           <div className="container mx-auto px-4 py-8 md:py-12">
             <div className="text-center max-w-3xl mx-auto mb-8">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4 shadow-lg"
+                className="inline-flex items-center gap-2 bg-brand-red text-white px-4 py-2 rounded-full text-sm font-semibold mb-4 shadow-lg"
               >
                 <Sparkles className="h-4 w-4" />
                 Premium Quality Products
               </motion.div>
               
               <motion.h1 
-                className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-gray-900"
+                className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-foreground"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
@@ -431,11 +431,11 @@ export default function ProductsPage() {
             >
               {/* Search Bar */}
               <div className="relative mb-4">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-orange-500 h-5 w-5" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-brand-red h-5 w-5" />
                 <Input
                   type="search"
                   placeholder="Search for products..."
-                  className="pl-12 h-12 bg-white/90 border-2 border-white/60 focus:border-orange-400 text-base rounded-xl shadow-lg placeholder:text-gray-500"
+                  className="pl-12 h-12 bg-card border-2 border-border focus:border-brand-red text-base rounded-xl shadow-lg placeholder:text-muted-foreground"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -446,9 +446,9 @@ export default function ProductsPage() {
                 <Button
                   variant="outline"
                   onClick={() => setShowMobileFilters(!showMobileFilters)}
-                  className="flex items-center gap-2 h-10 px-4 rounded-lg bg-white/90 border-2 border-white/60 hover:border-orange-400 text-gray-700 font-medium shadow-md hover:shadow-lg transition-all"
+                  className="flex items-center gap-2 h-10 px-4 rounded-lg bg-card border-2 border-border hover:border-brand-red text-gray-700 font-medium shadow-md hover:shadow-lg transition-all"
                 >
-                  <Filter className="h-4 w-4 text-orange-500" />
+                  <Filter className="h-4 w-4 text-brand-red" />
                   {CATEGORIES.find(cat => cat.value === selectedCategory)?.label || 'All Categories'}
                   <ChevronDown className="h-4 w-4" />
                 </Button>
@@ -456,7 +456,7 @@ export default function ProductsPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="appearance-none bg-white/90 border-2 border-white/60 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 hover:border-orange-400 focus:border-orange-400 focus:outline-none h-10 shadow-md"
+                  className="appearance-none bg-card border-2 border-border rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 hover:border-brand-red focus:border-brand-red focus:outline-none h-10 shadow-md"
                 >
                   {SORT_OPTIONS.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -465,12 +465,12 @@ export default function ProductsPage() {
                   ))}
                 </select>
 
-                <div className="flex border-2 border-white/60 rounded-lg overflow-hidden bg-white/90 shadow-md">
+                <div className="flex border-2 border-border rounded-lg overflow-hidden bg-card shadow-md">
                   <Button
                     variant={viewMode === 'grid' ? 'default' : 'ghost'}
                     size="sm"
                     onClick={() => setViewMode('grid')}
-                    className={`rounded-none border-0 px-3 h-10 ${viewMode === 'grid' ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white' : 'text-gray-700'}`}
+                    className={`rounded-none border-0 px-3 h-10 ${viewMode === 'grid' ? 'bg-brand-red text-white' : 'text-gray-700'}`}
                   >
                     <Grid className="h-4 w-4" />
                   </Button>
@@ -478,7 +478,7 @@ export default function ProductsPage() {
                     variant={viewMode === 'list' ? 'default' : 'ghost'}
                     size="sm"
                     onClick={() => setViewMode('list')}
-                    className={`rounded-none border-0 px-3 h-10 ${viewMode === 'list' ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white' : 'text-gray-700'}`}
+                    className={`rounded-none border-0 px-3 h-10 ${viewMode === 'list' ? 'bg-brand-red text-white' : 'text-gray-700'}`}
                   >
                     <List className="h-4 w-4" />
                   </Button>
@@ -490,7 +490,7 @@ export default function ProductsPage() {
                 <p className="text-gray-600 text-sm">
                   {sortedProducts.length} products found
                   {selectedCategory !== 'all' && (
-                    <span className="ml-2 inline-flex items-center gap-1 bg-gradient-to-r from-orange-500 to-pink-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                    <span className="ml-2 inline-flex items-center gap-1 bg-brand-red text-white px-2 py-1 rounded-full text-xs font-semibold">
                       {CATEGORIES.find(cat => cat.value === selectedCategory)?.label}
                       <button
                         onClick={() => setSelectedCategory('all')}
@@ -514,7 +514,7 @@ export default function ProductsPage() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="bg-white/80 backdrop-blur-sm border-b border-white/60 shadow-sm relative z-10"
+              className="bg-card backdrop-blur-sm border-b border-border shadow-sm relative z-10"
             >
               <div className="container mx-auto px-4 py-4">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-64 overflow-y-auto">
@@ -527,8 +527,8 @@ export default function ProductsPage() {
                       }}
                       className={`p-3 text-sm rounded-lg text-left transition-colors ${
                         selectedCategory === category.value
-                          ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white font-semibold shadow-lg'
-                          : 'bg-white/90 text-gray-700 hover:bg-white border border-white/60'
+                          ? 'bg-brand-red text-white font-semibold shadow-lg'
+                          : 'bg-card text-gray-700 hover:bg-white border border-border'
                       }`}
                     >
                       {category.label}
@@ -570,7 +570,7 @@ export default function ProductsPage() {
                     size="sm"
                     onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                     disabled={currentPage === 1}
-                    className="h-10 px-3 bg-white/80 border-white/60 hover:border-orange-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-10 px-3 bg-card border-border hover:border-brand-red disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
@@ -592,15 +592,15 @@ export default function ProductsPage() {
                             onClick={() => setCurrentPage(page)}
                             className={`h-10 w-10 ${
                               currentPage === page
-                                ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white'
-                                : 'bg-white/80 border-white/60 hover:border-orange-400 text-gray-700'
+                                ? 'bg-brand-red text-white'
+                                : 'bg-card border-border hover:border-brand-red text-gray-700'
                             }`}
                           >
                             {page}
                           </Button>
                         );
                       } else if (page === currentPage - 2 || page === currentPage + 2) {
-                        return <span key={page} className="text-gray-500">...</span>;
+                        return <span key={page} className="text-muted-foreground">...</span>;
                       }
                       return null;
                     })}
@@ -611,7 +611,7 @@ export default function ProductsPage() {
                     size="sm"
                     onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                     disabled={currentPage === totalPages}
-                    className="h-10 px-3 bg-white/80 border-white/60 hover:border-orange-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-10 px-3 bg-card border-border hover:border-brand-red disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ChevronRight className="h-4 w-4" />
                   </Button>
@@ -625,8 +625,8 @@ export default function ProductsPage() {
               transition={{ duration: 0.5 }}
               className="text-center py-12 md:py-16"
             >
-              <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Search className="h-8 w-8 text-orange-500" />
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
+                <Search className="h-8 w-8 text-brand-red" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
                 No products found
@@ -636,7 +636,7 @@ export default function ProductsPage() {
               </p>
               <Button
                 onClick={clearFilters}
-                className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg flex items-center gap-2 mx-auto shadow-lg"
+                className="bg-gradient-to-r from-orange-500 to-pink-500  text-white px-6 py-3 rounded-lg flex items-center gap-2 mx-auto shadow-lg"
               >
                 Clear all filters
                 <ArrowRight className="h-4 w-4" />
@@ -646,12 +646,12 @@ export default function ProductsPage() {
         </div>
 
         {/* Trust Section */}
-        <div className="bg-white/70 backdrop-blur-sm border-t border-white/60 relative z-10">
+        <div className="bg-card border-t border-border relative z-10">
           <div className="container mx-auto px-4 py-6 md:py-8">
             <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8 text-center">
-              <div className="flex items-center gap-3 text-gray-600">
-                <div className="w-10 h-10 bg-gradient-to-br from-orange-100 to-pink-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Shield className="h-5 w-5 text-orange-500" />
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
+                  <Shield className="h-5 w-5 text-brand-red" />
                 </div>
                 <div className="text-left">
                   <div className="font-semibold text-gray-900 text-sm">Secure Shopping</div>
@@ -659,9 +659,9 @@ export default function ProductsPage() {
                 </div>
               </div>
               
-              <div className="flex items-center gap-3 text-gray-600">
-                <div className="w-10 h-10 bg-gradient-to-br from-orange-100 to-pink-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="h-5 w-5 text-orange-500" />
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="h-5 w-5 text-brand-red" />
                 </div>
                 <div className="text-left">
                   <div className="font-semibold text-gray-900 text-sm">Quality Guaranteed</div>
@@ -669,9 +669,9 @@ export default function ProductsPage() {
                 </div>
               </div>
               
-              <div className="flex items-center gap-3 text-gray-600">
-                <div className="w-10 h-10 bg-gradient-to-br from-orange-100 to-pink-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Zap className="h-5 w-5 text-orange-500" />
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
+                  <Zap className="h-5 w-5 text-brand-red" />
                 </div>
                 <div className="text-left">
                   <div className="font-semibold text-gray-900 text-sm">Fast Delivery</div>
