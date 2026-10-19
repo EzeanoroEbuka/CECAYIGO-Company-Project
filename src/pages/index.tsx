@@ -1,54 +1,39 @@
 import Head from "next/head";
-import { HeroSection } from "@/components/home/HeroSection";
-import { CategoriesSection } from "@/components/home/Categories";
-import { FeaturedProducts } from "@/components/home/FeaturedProducts";
-import { LatestBlogs } from "@/components/home/LatestBlogs";
+import {
+  HeroSection,
+  AboutSection,
+  GrowthSection,
+  StatsSection,
+  PresenceSection,
+  CtaSection,
+} from "@/components/home/LandingPage";
 
 export default function Home() {
   return (
     <>
       <Head>
-        <title>CeC - Shop Easy</title>
+        <title>
+          CEC Ayigo and Sons Lightings — Solar & Electrical Distributor, Lagos
+        </title>
         <meta
           name="description"
-          content="Discover quality products with ease at CeC. Browse our collection and find exactly what you need."
+          content="Official platform of CEC Ayigo and Sons Lightings. CAC-registered distributor of solar systems, LED lighting, and electrical accessories across Nigeria."
         />
         <meta
           name="keywords"
-          content="e-commerce, online shopping, products, CeC"
+          content="solar Nigeria, LED lighting Lagos, solar inverter, solar street light, solar floodlight, Alaba market"
         />
         <link rel="icon" href="/image/cec-logo.png" />
-        <link
-          rel="preconnect"
-          href="https://images.unsplash.com"
-          crossOrigin=""
-        />
-        <link rel="dns-prefetch" href="https://images.unsplash.com" />
-        <link
-          rel="preconnect"
-          href="https://images.pexels.com"
-          crossOrigin=""
-        />
-        <link rel="dns-prefetch" href="https://images.pexels.com" />
-        <link rel="preconnect" href="https://pixabay.com" crossOrigin="" />
-        <link rel="dns-prefetch" href="https://pixabay.com" />
-        <link
-          rel="preconnect"
-          href="https://firebasestorage.googleapis.com"
-          crossOrigin=""
-        />
-        <link
-          rel="dns-prefetch"
-          href="https://firebasestorage.googleapis.com"
-        />
       </Head>
 
-      <div className="min-h-screen bg-background">
+      <main>
         <HeroSection />
-        <CategoriesSection />
-        <FeaturedProducts />
-        <LatestBlogs />
-      </div>
+        <AboutSection />
+        <StatsSection />
+        <GrowthSection />
+        <PresenceSection />
+        <CtaSection />
+      </main>
     </>
   );
 }
