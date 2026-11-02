@@ -2,25 +2,25 @@ import { Html, Head, Main, NextScript } from "next/document";
 
 export default function Document() {
   return (
-    // `dark` class is set here so it is present on SSR HTML — ThemeContext
-    // then reconciles it client-side from localStorage / system preference.
-    <Html lang="en" className="dark">
+    // No dark class hardcoded — ThemeContext handles it client-side from
+    // localStorage. The design defaults to light mode (Figma is light).
+    <Html lang="en">
       <Head>
-        {/* ── Viewport — MUST live here, not in _app.tsx, to apply on every page ── */}
+        {/* Viewport */}
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1.0, viewport-fit=cover"
         />
 
-        {/* ── Favicon — CeC Ayigo company logo ── */}
+        {/* Favicon */}
         <link rel="icon" type="image/jpeg" href="/image/cec-logo.png" />
         <link rel="icon" type="image/png" href="/image/cec-logo.png" />
         <link rel="apple-touch-icon" href="/image/cec-logo.png" />
         <link rel="shortcut icon" href="/image/cec-logo.png" />
 
-        {/* Theme colour */}
-        <meta name="theme-color" content="#0B0F1A" />
-        <meta name="msapplication-TileColor" content="#E51E25" />
+        {/* Theme colour — light mode default */}
+        <meta name="theme-color" content="#F8F8F8" />
+        <meta name="msapplication-TileColor" content="#1B3A5C" />
 
         {/* Softgen monitoring */}
         <script
@@ -29,7 +29,8 @@ export default function Document() {
           data-softgen-monitoring="true"
         />
       </Head>
-      <body className="antialiased bg-[#0B0F1A]">
+      {/* No background forced on body — bg-background in Layout handles it */}
+      <body className="antialiased">
         <Main />
         <NextScript />
       </body>

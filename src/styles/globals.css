@@ -3,92 +3,103 @@
 @tailwind utilities;
 
 /* ============================================================
-   CEC AYIGO — CLEAN MINIMAL THEME
-   Philosophy: Near-white / deep charcoal surfaces.
-   Only ONE accent color: brand red #E51E25.
-   No gradients, no bright blues, no busyness.
+   CEC LIGHTING — FIGMA DESIGN TOKENS
+   Hero bg:    #F5EDD8  (warm cream)
+   Page bg:    #F8F8F8  (off-white)
+   Navy:       #1B3A5C  (primary buttons, dark sections)
+   Navy dark:  #0F2440  (footer, dark banner)
+   Red accent: #E51E25  (labels, badges)
+   Card bg:    #FFFFFF
    ============================================================ */
 
 @layer base {
   :root {
-    /* ── Light mode ── */
-    --background: 0 0% 98%; /* #FAFAFA — near white */
-    --foreground: 0 0% 10%; /* #1A1A1A — deep charcoal */
+    --background: 40 20% 97%; /* #F8F8F8 page */
+    --foreground: 214 40% 12%; /* #111E2E dark text */
 
-    --card: 0 0% 100%; /* pure white */
-    --card-foreground: 0 0% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 214 40% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
+    --popover-foreground: 214 40% 12%;
 
-    --primary: 357 78% 46%; /* #D91920 — brand red */
+    /* Navy = primary */
+    --primary: 212 55% 23%; /* #1B3A5C */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 92%; /* #EBEBEB — light grey */
-    --secondary-foreground: 0 0% 15%;
+    --secondary: 40 53% 88%; /* #F0E4C8 light cream */
+    --secondary-foreground: 214 40% 12%;
 
-    --muted: 0 0% 95%; /* #F2F2F2 — softer grey */
-    --muted-foreground: 0 0% 42%; /* #6B6B6B */
+    --muted: 220 14% 93%; /* #ECF0F4 */
+    --muted-foreground: 214 18% 48%;
 
-    --accent: 357 78% 46%; /* same red */
+    --accent: 357 78% 50%; /* #E51E25 red */
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 357 78% 46%;
+    --destructive: 357 78% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 88%; /* #E0E0E0 */
-    --input: 0 0% 92%;
-    --ring: 357 78% 46%;
+    --border: 220 14% 88%; /* #DDE2EA */
+    --input: 220 14% 90%;
+    --ring: 212 55% 23%;
     --radius: 0.5rem;
 
+    /* Hero cream band */
+    --hero-bg: 38 67% 89%; /* #F5EDD8 */
+    /* Dark navy banner / footer */
+    --navy-dark: 214 60% 16%; /* #0F2440 */
+
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 10%;
-    --sidebar-primary: 357 78% 46%;
+    --sidebar-foreground: 214 40% 12%;
+    --sidebar-primary: 212 55% 23%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 95%;
-    --sidebar-accent-foreground: 0 0% 10%;
-    --sidebar-border: 0 0% 88%;
-    --sidebar-ring: 357 78% 46%;
+    --sidebar-accent: 40 53% 88%;
+    --sidebar-accent-foreground: 214 40% 12%;
+    --sidebar-border: 220 14% 88%;
+    --sidebar-ring: 212 55% 23%;
   }
 
+  /* Dark mode keeps the same identity but flips surfaces */
   .dark {
-    /* ── Dark mode ── */
-    --background: 0 0% 7%; /* #121212 — near black */
-    --foreground: 0 0% 92%; /* #EBEBEB — off-white text */
+    --background: 214 60% 8%;
+    --foreground: 40 30% 94%;
 
-    --card: 0 0% 11%; /* #1C1C1C */
-    --card-foreground: 0 0% 92%;
+    --card: 214 55% 12%;
+    --card-foreground: 40 30% 94%;
 
-    --popover: 0 0% 11%;
-    --popover-foreground: 0 0% 92%;
+    --popover: 214 55% 12%;
+    --popover-foreground: 40 30% 94%;
 
-    --primary: 357 78% 55%; /* #E83030 — slightly brighter red on dark */
+    --primary: 212 60% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 16%; /* #292929 */
-    --secondary-foreground: 0 0% 80%;
+    --secondary: 214 40% 18%;
+    --secondary-foreground: 40 30% 90%;
 
-    --muted: 0 0% 14%; /* #242424 */
-    --muted-foreground: 0 0% 52%; /* #858585 */
+    --muted: 214 40% 14%;
+    --muted-foreground: 214 20% 58%;
 
-    --accent: 357 78% 55%;
+    --accent: 357 78% 58%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 357 78% 55%;
+    --destructive: 357 78% 58%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 18%; /* #2E2E2E */
-    --input: 0 0% 16%;
-    --ring: 357 78% 55%;
+    --border: 214 40% 20%;
+    --input: 214 40% 18%;
+    --ring: 212 60% 55%;
 
-    --sidebar-background: 0 0% 9%;
-    --sidebar-foreground: 0 0% 92%;
-    --sidebar-primary: 357 78% 55%;
+    --hero-bg: 214 60% 10%;
+    --navy-dark: 214 60% 6%;
+
+    --sidebar-background: 214 55% 10%;
+    --sidebar-foreground: 40 30% 94%;
+    --sidebar-primary: 212 60% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 14%;
-    --sidebar-accent-foreground: 0 0% 92%;
-    --sidebar-border: 0 0% 18%;
-    --sidebar-ring: 357 78% 55%;
+    --sidebar-accent: 214 40% 14%;
+    --sidebar-accent-foreground: 40 30% 94%;
+    --sidebar-border: 214 40% 20%;
+    --sidebar-ring: 212 60% 55%;
   }
 
   * {
@@ -102,7 +113,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: "Poppins", sans-serif;
+    font-family: "Poppins", ui-sans-serif, system-ui, sans-serif;
     overflow-x: hidden;
   }
 
@@ -112,97 +123,67 @@
   h4,
   h5,
   h6 {
-    font-family: "Poppins", sans-serif;
+    font-family: "Poppins", ui-sans-serif, system-ui, sans-serif;
     font-weight: 700;
-    letter-spacing: -0.02em;
-  }
-
-  p {
-    line-height: 1.7;
   }
 }
 
 /* ============================================================
-   UTILITIES
-   ============================================================ */
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-
-  /* Single accent underline — replaces colourful badges */
-  .accent-line {
-    display: inline-block;
-    border-bottom: 2px solid hsl(var(--primary));
-    padding-bottom: 2px;
-  }
-}
-
-/* ============================================================
-   ANIMATIONS  (kept minimal — only what's actually used)
-   ============================================================ */
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.animate-fade-up {
-  animation: fadeUp 0.5s ease-out forwards;
-}
-.animate-fade-in {
-  animation: fadeIn 0.4s ease-out forwards;
-}
-
-/* ============================================================
-   COMPONENT DEFAULTS
+   COMPONENT LAYER
    ============================================================ */
 @layer components {
-  /* Consistent section container */
   .container {
-    @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl w-full;
+    @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full;
   }
 
-  /* Clean card */
-  .clean-card {
-    @apply bg-card border border-border rounded-lg;
+  /* Primary navy button */
+  .btn-navy {
+    @apply inline-flex items-center gap-2
+           bg-primary text-primary-foreground
+           px-5 py-2.5 rounded-md text-sm font-semibold
+           hover:bg-primary/90 active:scale-95
+           transition-all duration-150;
   }
 
-  /* Primary CTA — red, no glow */
-  .btn-primary {
-    @apply bg-primary text-primary-foreground font-semibold
-           px-5 py-2.5 rounded-md text-sm
-           hover:opacity-90 active:scale-95
-           transition-all duration-150
-           inline-flex items-center gap-2;
+  /* Outline button */
+  .btn-outline-navy {
+    @apply inline-flex items-center gap-2
+           border-2 border-primary text-primary bg-transparent
+           px-5 py-2.5 rounded-md text-sm font-semibold
+           hover:bg-primary hover:text-white active:scale-95
+           transition-all duration-150;
   }
 
-  /* Secondary / outline CTA */
-  .btn-outline {
-    @apply border border-border bg-transparent text-foreground font-semibold
-           px-5 py-2.5 rounded-md text-sm
-           hover:bg-muted active:scale-95
-           transition-all duration-150
-           inline-flex items-center gap-2;
+  /* Red label badge (e.g. "OUR PRODUCTS") */
+  .label-red {
+    @apply inline-block text-accent text-xs font-bold
+           uppercase tracking-widest mb-2;
   }
 
-  /* Divider line used throughout */
-  .section-divider {
-    @apply border-t border-border my-12 md:my-16;
+  /* Category / product card */
+  .product-card {
+    @apply bg-card rounded-xl overflow-hidden border border-border
+           hover:shadow-card-md transition-shadow duration-200;
+  }
+
+  /* Section white bg */
+  .section-white {
+    @apply bg-white;
+  }
+}
+
+/* ============================================================
+   SHADOWS
+   ============================================================ */
+@layer utilities {
+  .shadow-card {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  }
+  .shadow-card-md {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+  .shadow-card-lg {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   }
 }
 
@@ -225,7 +206,7 @@
 }
 
 /* ============================================================
-   MOBILE TOUCH
+   TOUCH
    ============================================================ */
 button,
 a,
@@ -237,7 +218,7 @@ a,
 button:active:not(:disabled),
 a:active,
 [role="button"]:active {
-  opacity: 0.8;
+  opacity: 0.82;
   transform: scale(0.97);
   transition:
     transform 0.08s ease,

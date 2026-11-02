@@ -1,9 +1,9 @@
-"use client";
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import {
   Menu,
@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   LogOut,
   Package,
+  ShoppingCart,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -25,7 +26,14 @@ import {
 
 const ASSET_VERSION = process.env.NEXT_PUBLIC_ASSET_VERSION || "1";
 
-/** Product category pages linked directly from the nav */
+const NAV_LINKS = [
+  { label: "Home", href: "/" },
+  { label: "Products", href: "/products" },
+  { label: "About", href: "/about" },
+  { label: "Guides", href: "/guides" },
+  { label: "Contact", href: "/contact" },
+];
+
 const CATEGORIES = [
   { label: "Solar Cameras", href: "/products?category=Solar+cameras" },
   {
@@ -51,115 +59,122 @@ const CATEGORIES = [
 export function Header() {
   const router = useRouter();
   const { user, profile, isAdmin, signOut } = useAuth();
+  const { cartCount } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  const logoCandidates = [
-    "/image/cec-logo.png",
-    "/image/logo.png",
-    "/image/cec.png",
-  ].filter(Boolean);
   const [logoIdx, setLogoIdx] = useState(0);
-
-  const isHome = router.pathname === "/";
-  const activeCat = CATEGORIES.find(
-    (c) =>
-      router.asPath.startsWith(c.href.split("?")[0]) &&
-      router.query.category ===
-        c.href.split("category=")[1]?.replace(/\+/g, " "),
-  );
+  const logos = ["/image/cec-logo.png", "/image/logo.png", "/image/cec.png"];
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background border-b border-border">
-      {/* ── Top bar: logo + utility icons ── */}
-      <div className="container flex h-14 sm:h-16 items-center justify-between gap-4">
-        {/* Logo */}
-        <Link href="/" className="flex-shrink-0" aria-label="CeC Ayigo home">
+    <header className="sticky top-0 z-50 w-full bg-white border-b border-cec-gray-bd shadow-xs">
+      <div className="container flex h-16 items-center justify-between gap-4">
+        {/* ── Logo ── */}
+        <Link href="/" className="flex-shrink-0" aria-label="CEC Lighting home">
           <Image
-            src={`${logoCandidates[logoIdx]}?v=${ASSET_VERSION}`}
-            alt="CeC Ayigo"
-            width={160}
-            height={44}
-            className="h-8 sm:h-9 w-auto object-contain"
+            src={`${logos[logoIdx]}?v=${ASSET_VERSION}`}
+            alt="CEC Lighting"
+            width={150}
+            height={42}
+            className="h-9 w-auto object-contain"
             priority
-            onError={() =>
-              setLogoIdx((i) => Math.min(i + 1, logoCandidates.length - 1))
-            }
+            onError={() => setLogoIdx((i) => Math.min(i + 1, logos.length - 1))}
           />
         </Link>
 
-        {/* Desktop: Home link + categories */}
+        {/* ── Desktop nav ── */}
         <nav
-          className="hidden lg:flex items-center gap-0.5"
+          className="hidden lg:flex items-center gap-1"
           aria-label="Main navigation"
         >
-          <Link
-            href="/"
-            className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
-              isHome
-                ? "text-primary"
-                : "text-foreground/70 hover:text-foreground"
-            }`}
-          >
-            Home
-          </Link>
-          <span className="text-border mx-1">|</span>
-          {CATEGORIES.map((cat) => {
+          {NAV_LINKS.map((item) => {
             const active =
-              router.asPath === cat.href ||
-              router.query.category ===
-                decodeURIComponent(cat.href.split("category=")[1] || "");
+              router.pathname === item.href ||
+              (item.href !== "/" && router.pathname.startsWith(item.href));
             return (
               <Link
-                key={cat.href}
-                href={cat.href}
-                className={`px-3 py-1.5 text-sm font-medium rounded transition-colors whitespace-nowrap ${
+                key={item.href}
+                href={item.href}
+                className={`px-3.5 py-2 text-sm font-medium rounded-md transition-colors ${
                   active
-                    ? "text-primary"
-                    : "text-foreground/70 hover:text-foreground"
+                    ? "text-cec-navy font-semibold"
+                    : "text-cec-gray-text hover:text-cec-navy"
                 }`}
               >
-                {cat.label}
+                {item.label}
               </Link>
             );
           })}
+
+          {/* Products dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-1 px-3.5 py-2 text-sm font-medium text-cec-gray-text hover:text-cec-navy rounded-md transition-colors">
+                Categories <ChevronDown className="h-3.5 w-3.5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="start"
+              className="w-56 bg-white border-cec-gray-bd shadow-card-md rounded-xl p-1"
+            >
+              {CATEGORIES.map((cat) => (
+                <DropdownMenuItem key={cat.href} asChild>
+                  <Link
+                    href={cat.href}
+                    className="text-sm text-cec-charcoal hover:text-cec-navy px-3 py-2 cursor-pointer rounded-md"
+                  >
+                    {cat.label}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </nav>
 
-        {/* Right: theme + account + hamburger */}
+        {/* ── Right actions ── */}
         <div className="flex items-center gap-2 flex-shrink-0">
           <ThemeToggle />
 
+          {/* Cart */}
+          <Link
+            href="/cart"
+            aria-label="Cart"
+            className="relative flex items-center justify-center h-9 w-9 rounded-md border border-cec-gray-bd text-cec-charcoal hover:bg-cec-gray-lt transition-colors"
+          >
+            <ShoppingCart className="h-4 w-4" />
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 h-4 min-w-[16px] px-0.5 bg-cec-red text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
+          </Link>
+
+          {/* Account */}
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button
-                  className="flex items-center gap-1.5 h-8 px-2.5 rounded border border-border text-xs font-semibold text-foreground hover:bg-muted transition-colors"
-                  aria-label="Account menu"
-                >
-                  <div className="w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[10px] font-bold flex-shrink-0">
-                    {profile?.displayName
-                      ? profile.displayName.charAt(0).toUpperCase()
-                      : "U"}
+                <button className="flex items-center gap-1.5 h-9 px-3 rounded-md border border-cec-gray-bd text-sm font-medium text-cec-charcoal hover:bg-cec-gray-lt transition-colors">
+                  <div className="w-5 h-5 rounded-full bg-cec-navy text-white flex items-center justify-center text-[10px] font-bold">
+                    {profile?.displayName?.charAt(0).toUpperCase() ?? "U"}
                   </div>
                   <span className="hidden sm:inline max-w-[80px] truncate">
-                    {profile?.displayName || "Account"}
+                    {profile?.displayName ?? "Account"}
                   </span>
                   <ChevronDown className="h-3 w-3 opacity-50" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="w-52 bg-card border-border rounded-lg shadow-card-md"
+                className="w-52 bg-white border-cec-gray-bd shadow-card-md rounded-xl"
               >
-                <div className="px-3 py-2 border-b border-border text-xs">
-                  <p className="font-semibold text-foreground truncate">
-                    {profile?.displayName || "Customer"}
+                <div className="px-3 py-2 border-b border-cec-gray-bd text-xs">
+                  <p className="font-semibold text-cec-charcoal truncate">
+                    {profile?.displayName ?? "Customer"}
                   </p>
-                  <p className="text-muted-foreground truncate text-[11px]">
+                  <p className="text-cec-gray-text truncate text-[11px]">
                     {user.email}
                   </p>
                   {isAdmin && (
-                    <span className="inline-block mt-1 text-[10px] bg-primary/10 text-primary font-semibold px-2 py-0.5 rounded">
-                      Administrator
+                    <span className="inline-block mt-1 text-[10px] bg-cec-navy/10 text-cec-navy font-bold px-2 py-0.5 rounded">
+                      Admin
                     </span>
                   )}
                 </div>
@@ -167,7 +182,7 @@ export function Header() {
                   <DropdownMenuItem asChild>
                     <Link
                       href="/admin/dashboard"
-                      className="text-xs font-semibold text-primary flex items-center gap-2 py-2 cursor-pointer"
+                      className="text-xs font-semibold text-cec-navy flex items-center gap-2 py-2 cursor-pointer px-3"
                     >
                       <ShieldCheck className="h-3.5 w-3.5" /> Admin Dashboard
                     </Link>
@@ -176,15 +191,15 @@ export function Header() {
                 <DropdownMenuItem asChild>
                   <Link
                     href="/order-tracking"
-                    className="text-xs flex items-center gap-2 py-2 cursor-pointer text-foreground"
+                    className="text-xs flex items-center gap-2 py-2 cursor-pointer px-3 text-cec-charcoal"
                   >
                     <Package className="h-3.5 w-3.5" /> Track My Orders
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-border" />
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => signOut()}
-                  className="text-xs text-primary flex items-center gap-2 py-2 cursor-pointer"
+                  className="text-xs text-cec-red flex items-center gap-2 py-2 cursor-pointer px-3"
                 >
                   <LogOut className="h-3.5 w-3.5" /> Sign Out
                 </DropdownMenuItem>
@@ -193,19 +208,18 @@ export function Header() {
           ) : (
             <Link
               href="/login"
-              className="flex items-center gap-1.5 h-8 px-3 rounded border border-border text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+              className="flex items-center gap-1.5 h-9 px-4 rounded-md bg-cec-navy text-white text-sm font-semibold hover:bg-cec-navy-mid active:scale-95 transition-all"
             >
               <User className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Sign In</span>
+              <span>Sign In</span>
             </Link>
           )}
 
-          {/* Hamburger — tablet + mobile */}
+          {/* Hamburger */}
           <button
             onClick={() => setMobileOpen((v) => !v)}
             aria-label="Toggle menu"
-            aria-expanded={mobileOpen}
-            className="lg:hidden flex items-center justify-center h-8 w-8 rounded border border-border text-foreground hover:bg-muted transition-colors"
+            className="lg:hidden h-9 w-9 flex items-center justify-center rounded-md border border-cec-gray-bd hover:bg-cec-gray-lt transition-colors"
           >
             {mobileOpen ? (
               <X className="h-4 w-4" />
@@ -216,7 +230,7 @@ export function Header() {
         </div>
       </div>
 
-      {/* ── Mobile / tablet nav drawer ── */}
+      {/* ── Mobile drawer ── */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -224,74 +238,52 @@ export function Header() {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="lg:hidden overflow-hidden border-t border-border bg-background"
+            className="lg:hidden overflow-hidden border-t border-cec-gray-bd bg-white"
           >
-            <nav
-              className="container py-3 flex flex-col gap-0.5"
-              aria-label="Mobile navigation"
-            >
-              {/* Home */}
-              <Link
-                href="/"
-                onClick={() => setMobileOpen(false)}
-                className={`flex items-center px-3 py-2.5 rounded text-sm font-medium transition-colors ${
-                  isHome
-                    ? "text-primary bg-primary/5"
-                    : "text-foreground hover:bg-muted"
-                }`}
-              >
-                Home
-              </Link>
-
-              {/* Thin divider */}
-              <div className="border-t border-border my-1" />
-              <p className="px-3 pt-1 pb-0.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                Product Categories
-              </p>
-
-              {CATEGORIES.map((cat) => {
-                const active = router.asPath === cat.href;
+            <nav className="container py-3 flex flex-col gap-0.5">
+              {NAV_LINKS.map((item) => {
+                const active = router.pathname === item.href;
                 return (
                   <Link
-                    key={cat.href}
-                    href={cat.href}
+                    key={item.href}
+                    href={item.href}
                     onClick={() => setMobileOpen(false)}
-                    className={`flex items-center px-3 py-2.5 rounded text-sm font-medium transition-colors ${
-                      active
-                        ? "text-primary bg-primary/5"
-                        : "text-foreground hover:bg-muted"
-                    }`}
+                    className={`px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${active ? "text-cec-navy bg-cec-navy/5" : "text-cec-charcoal hover:bg-cec-gray-lt"}`}
                   >
-                    {cat.label}
+                    {item.label}
                   </Link>
                 );
               })}
-
-              {/* Admin link if applicable */}
+              <p className="px-3 pt-3 pb-1 text-[10px] font-bold text-cec-gray-text uppercase tracking-widest">
+                Categories
+              </p>
+              {CATEGORIES.map((cat) => (
+                <Link
+                  key={cat.href}
+                  href={cat.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="px-3 py-2 rounded-md text-sm text-cec-charcoal hover:bg-cec-gray-lt transition-colors"
+                >
+                  {cat.label}
+                </Link>
+              ))}
               {isAdmin && (
-                <>
-                  <div className="border-t border-border my-1" />
-                  <Link
-                    href="/admin/dashboard"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2.5 rounded text-sm font-semibold text-primary hover:bg-primary/5 transition-colors"
-                  >
-                    <ShieldCheck className="h-4 w-4" /> Admin Dashboard
-                  </Link>
-                </>
+                <Link
+                  href="/admin/dashboard"
+                  onClick={() => setMobileOpen(false)}
+                  className="mt-1 px-3 py-2.5 rounded-md text-sm font-semibold text-cec-navy bg-cec-navy/5 flex items-center gap-2"
+                >
+                  <ShieldCheck className="h-4 w-4" /> Admin Dashboard
+                </Link>
               )}
-
               {!user && (
-                <>
-                  <div className="border-t border-border my-1" />
-                  <Link
-                    href="/login"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex items-center justify-center gap-2 mx-3 py-2.5 rounded bg-primary text-primary-foreground text-sm font-semibold transition-colors hover:opacity-90"
-                  >
-                    <User className="h-4 w-4" /> Sign In / Register
-                  </Link>
-                </>
+                <Link
+                  href="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="mt-2 mx-0 flex items-center justify-center gap-2 py-2.5 rounded-md bg-cec-navy text-white text-sm font-semibold"
+                >
+                  <User className="h-4 w-4" /> Sign In / Register
+                </Link>
               )}
             </nav>
           </motion.div>

@@ -10,7 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        /* ── Semantic tokens — all wired to CSS variables ── */
+        /* Semantic CSS-variable tokens */
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -62,52 +62,47 @@ const config: Config = {
           ring: "hsl(var(--sidebar-ring))",
         },
 
-        /* ── CEC AYIGO Brand — kept intentionally minimal ── */
-        brand: {
-          red: "#D91920" /* primary CTA / accent */,
-          "red-dark": "#B71418" /* hover / pressed state  */,
-          "red-light": "#F03030" /* dark-mode variant      */,
-          dark: "#121212" /* page bg dark           */,
-          "dark-card": "#1C1C1C" /* card bg dark           */,
-          "dark-border": "#2E2E2E" /* border dark            */,
-          charcoal: "#1A1A1A" /* body text light mode   */,
-          gray: "#6B6B6B" /* secondary text         */,
-          "gray-light": "#E0E0E0" /* subtle border / divider*/,
-          offwhite: "#FAFAFA" /* page bg light          */,
-        },
-      },
+        /* ── Figma hard-coded brand tokens ── */
+        cec: {
+          /* Warm cream hero background */
+          cream: "#F5EDD8",
+          "cream-lt": "#FAF5EB",
 
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+          /* Navy – main CTA colour */
+          navy: "#1B3A5C",
+          "navy-dark": "#0F2440",
+          "navy-mid": "#1D4070",
+
+          /* Red – accent, labels, badges */
+          red: "#E51E25",
+          "red-dark": "#B71418",
+
+          /* Neutrals */
+          "page-bg": "#F8F8F8",
+          white: "#FFFFFF",
+          "gray-lt": "#F2F4F7",
+          "gray-bd": "#DDE2EA",
+          "gray-text": "#6B7280",
+          charcoal: "#111E2E",
+        },
       },
 
       fontFamily: {
         sans: ["Poppins", "ui-sans-serif", "system-ui", "sans-serif"],
       },
 
-      fontSize: {
-        /* tighter display sizes */
-        "display-lg": [
-          "3.25rem",
-          { lineHeight: "1.1", letterSpacing: "-0.03em" },
-        ],
-        "display-md": [
-          "2.5rem",
-          { lineHeight: "1.15", letterSpacing: "-0.025em" },
-        ],
-        "display-sm": [
-          "1.875rem",
-          { lineHeight: "1.2", letterSpacing: "-0.02em" },
-        ],
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+        xl: "0.75rem",
+        "2xl": "1rem",
       },
 
       boxShadow: {
-        /* single subtle elevation, no coloured glow */
-        card: "0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)",
-        "card-md": "0 4px 12px rgba(0,0,0,0.08)",
-        "card-lg": "0 8px 24px rgba(0,0,0,0.10)",
+        card: "0 1px 4px rgba(0,0,0,0.08)",
+        "card-md": "0 4px 16px rgba(0,0,0,0.10)",
+        "card-lg": "0 8px 32px rgba(0,0,0,0.12)",
         xs: "0 1px 2px rgba(0,0,0,0.05)",
       },
 
@@ -121,7 +116,7 @@ const config: Config = {
           to: { height: "0" },
         },
         "fade-up": {
-          from: { opacity: "0", transform: "translateY(16px)" },
+          from: { opacity: "0", transform: "translateY(20px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
       },

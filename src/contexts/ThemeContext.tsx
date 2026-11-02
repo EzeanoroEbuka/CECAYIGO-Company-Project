@@ -9,55 +9,55 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType>({
-  theme: "dark",
+  theme: "light",
   toggleTheme: () => {},
   clearThemePreference: () => {},
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Default to dark — matches the brand's dark design direction
-  const [theme, setTheme] = useState<Theme>("dark");
-  const [isClient, setIsClient] = useState(false);
+  // Default light — Figma design is light mode first
+  const [theme, setTheme] = useState<Theme>("light");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setIsClient(true);
-    if (typeof window === "undefined") return;
-
-    const savedTheme = localStorage.getItem("theme") as Theme;
-    if (savedTheme === "light" || savedTheme === "dark") {
-      setTheme(savedTheme);
+    setMounted(true);
+    const saved = localStorage.getItem("theme") as Theme | null;
+    if (saved === "light" || saved === "dark") {
+      setTheme(saved);
     } else {
-      // Default to dark; only fall back to light if system explicitly requests it
+      // Follow system preference if no saved choice
       const prefersDark = window.matchMedia(
         "(prefers-color-scheme: dark)",
       ).matches;
-      setTheme(prefersDark ? "dark" : "dark"); // brand default is always dark
+      setTheme(prefersDark ? "dark" : "light");
     }
   }, []);
 
-  // Apply / remove the `dark` class on <html>
+  // Apply dark class to <html> whenever theme changes
   useEffect(() => {
-    if (!isClient || typeof window === "undefined") return;
-    const isDark = theme === "dark";
-    document.documentElement.classList.toggle("dark", isDark);
-
-    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-    if (metaThemeColor) {
-      metaThemeColor.setAttribute("content", isDark ? "#0B0F1A" : "#FAF5EB");
+    if (!mounted) return;
+    const root = document.documentElement;
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
     }
-  }, [theme, isClient]);
+    // Update theme-color meta
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      meta.setAttribute("content", theme === "dark" ? "#0F2440" : "#F8F8F8");
+    }
+  }, [theme, mounted]);
 
   const toggleTheme = () => {
-    if (typeof window === "undefined") return;
-    const newTheme: Theme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
+    const next: Theme = theme === "light" ? "dark" : "light";
+    setTheme(next);
+    localStorage.setItem("theme", next);
   };
 
   const clearThemePreference = () => {
-    if (typeof window === "undefined") return;
     localStorage.removeItem("theme");
-    setTheme("dark");
+    setTheme("light");
   };
 
   return (
