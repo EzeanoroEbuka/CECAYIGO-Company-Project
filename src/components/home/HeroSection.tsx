@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, Phone } from "lucide-react";
 
+/* Staggered fade-up */
 function FadeUp({
   children,
   delay = 0,
@@ -25,30 +26,39 @@ function FadeUp({
   );
 }
 
-/* Hero image — tries the real product photo first, falls back gracefully */
-const HERO_IMG_CANDIDATES = [
-  "/image/hero-products.png",
-  "/image/cec.png",
-  "/image/logo.png",
-  "/image/cec-logo.png",
-];
+// const HERO_IMG_CANDIDATES = [
+//   "/image/hero-products.png",
+//   "/image/cec.png",
+//   "/image/logo.png",
+//   "/image/cec-logo.png",
+// ];
 
-function HeroProductImage() {
-  const [idx, setIdx] = React.useState(0);
-  // If all candidates fail, render nothing rather than a broken image
-  if (idx >= HERO_IMG_CANDIDATES.length) return null;
-  return (
-    <Image
-      src={HERO_IMG_CANDIDATES[idx]}
-      alt="CEC Lighting product range — batteries, inverter, solar panel, charge controller, LED floodlights and cables"
-      width={700}
-      height={480}
-      className="w-full h-auto object-contain drop-shadow-xl"
-      priority
-      onError={() => setIdx((i) => i + 1)}
-    />
-  );
-}
+
+/* Product images shown in the hero — solar-related */
+const HERO_IMAGES = [
+  {
+    src: "/image/figma/hero-products.png",
+    alt: "Solar panel system",
+    },
+  // {
+  //   src: "https://images.unsplash.com/photo-1558449028-b53a39d100fc?w=400&q=80",
+  //   alt: "Solar inverter",
+  //   className:
+  //     "w-32 h-24 sm:w-40 sm:h-28 object-cover rounded-xl shadow-card-lg",
+  // },
+  // {
+  //   src: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=400&q=80",
+  //   alt: "Solar street light",
+  //   className:
+  //     "w-28 h-28 sm:w-36 sm:h-36 object-cover rounded-xl shadow-card-lg",
+  // },
+  // {
+  //   src: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=400&q=80",
+  //   alt: "LED floodlight",
+  //   className:
+  //     "w-32 h-24 sm:w-40 sm:h-28 object-cover rounded-xl shadow-card-lg",
+  // },
+];
 
 export function HeroSection() {
   return (
@@ -120,17 +130,33 @@ export function HeroSection() {
             </FadeUp>
           </div>
 
-          {/* ── Right: CEC product group photo ── */}
-          <FadeUp delay={0.15} className="flex items-center justify-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.97 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.6, ease: "easeOut" }}
-              className="relative w-full max-w-lg"
-            >
-              <HeroProductImage />
-            </motion.div>
+          <FadeUp
+            delay={0.1}
+            className="hidden lg:flex items-center justify-center"
+          >
+            <div className="relative w-full max-w-lg">
+              
+                <Image
+                  src={HERO_IMAGES[0].src}
+                  alt={HERO_IMAGES[0].alt}
+                  width={700}
+                  height={480}
+                  className="w-full h-auto object-contain drop-shadow-xl"
+                  priority
+                />
+            </div>
           </FadeUp>
+
+          <div className="lg:hidden">
+            <Image
+              src={HERO_IMAGES[0].src}
+              alt="Solar products"
+              width={600}
+              height={320}
+              className="w-full h-52 object-cover rounded-2xl shadow-card-lg"
+              unoptimized
+            />
+          </div>
         </div>
       </div>
     </section>

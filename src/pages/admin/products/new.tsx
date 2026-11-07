@@ -10,9 +10,12 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Upload, Plus, X } from "lucide-react";
 import { toast } from "sonner";
-import { db, storage } from "@/lib/firebase";
+
+
+import { db } from "@/lib/firebase";
+import { uploadImage } from "@/lib/cloudinaryUpload";
+
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { productService } from '@/services/productService';
 import { getAuth } from "firebase/auth";
 import { useEffect } from "react";
@@ -142,14 +145,8 @@ export default function NewProductPage() {
     setIsSubmitting(true);
     
     try {
-      // Upload images to Firebase Storage
-      const imageUrls = await Promise.all(
-        imageFiles.map(async (file) => {
-          const storageRef = ref(storage, `products/${Date.now()}_${file.name}`);
-          await uploadBytes(storageRef, file);
-          return getDownloadURL(storageRef);
-        })
-      );
+           // Upload images to Cloudinary
+      const imageUrls = await Promise.all(imageFiles.map((file) => uploadImage(file, "products")));
       
       // Convert specifications array to object
       const specificationsObject = formData.specifications.reduce((obj, item) => {
@@ -199,7 +196,8 @@ export default function NewProductPage() {
       router.push('/admin/dashboard');
     } catch (error) {
       console.error('Error creating product:', error);
-      toast.error('Failed to create product. Please try again.');
+      toast.error(error instanceof Error ? error.message : 'Failed to create product. Please try again.');
+      // toast.error('Failed to create product. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

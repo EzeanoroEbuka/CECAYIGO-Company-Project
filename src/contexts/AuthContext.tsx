@@ -1,188 +1,156 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { auth, db } from "@/lib/firebase";
-import { 
-  onAuthStateChanged, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
+import { auth } from "@/lib/firebase";
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInAnonymously,
   signOut as firebaseSignOut,
   updateProfile,
-  User as FirebaseUser
+  User as FirebaseUser,
 } from "firebase/auth";
-import { doc, getDoc, setDoc, updateDoc, collection, getDocs, serverTimestamp } from "firebase/firestore";
 import { toast } from "sonner";
+import { authFetch } from "@/lib/authFetch";
+import type { Role } from "@/lib/roles";
 
 export interface UserProfile {
   uid: string;
   email: string;
   displayName: string;
-  role: "admin" | "customer";
+  role: Role;
   phone?: string;
+  mustChangePassword?: boolean;
   createdAt?: any;
 }
 
 interface AuthContextType {
+  /** The signed-in customer/admin. null for guests (anonymous visitors are NOT treated as signed in). */
   user: FirebaseUser | null;
   profile: UserProfile | null;
   isAdmin: boolean;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (name: string, email: string, password: string, phone?: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<UserProfile>;
+  signUp: (name: string, email: string, password: string, phone?: string) => Promise<UserProfile>;
   signOut: () => Promise<void>;
-  updateUserRole: (uid: string, role: "admin" | "customer") => Promise<void>;
+  /** Admin only — enforced again on the server. */
+  updateUserRole: (uid: string, role: Role) => Promise<void>;
+  /** Admin only. */
   getAllUsers: () => Promise<UserProfile[]>;
+  /** Admin only: create a new account (admin or customer) with a temporary password. */
+  createUser: (input: { name: string; email: string; password: string; role: Role }) => Promise<void>;
+  /** Re-reads the profile (e.g. after the password was changed). */
+  refreshProfile: () => Promise<void>;
 }
+
+const noop = async () => {
+  throw new Error("AuthProvider is missing");
+};
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   profile: null,
   isAdmin: false,
   loading: true,
-  signIn: async () => {},
-  signUp: async () => {},
-  signOut: async () => {},
-  updateUserRole: async () => {},
-  getAllUsers: async () => []
+  signIn: noop as any,
+  signUp: noop as any,
+  signOut: noop,
+  updateUserRole: noop,
+  getAllUsers: async () => [],
+  createUser: noop,
+  refreshProfile: noop,
 });
 
-const INITIAL_ADMIN_EMAILS = [
-  "admin@cecayigo.com",
-  "admin@ayigo.com",
-  "admin@gmail.com"
-];
+const profileFromToken = async (fbUser: FirebaseUser, phone?: string): Promise<UserProfile> => {
+  let role: Role = "customer"; // safe default if the token can't be read (e.g. offline)
+  try {
+    const token = await fbUser.getIdTokenResult();
+    role = token.claims.role === "admin" ? "admin" : "customer";
+  } catch (err) {
+    console.warn("Could not read token (offline?):", err);
+  }
+  return {
+    uid: fbUser.uid,
+    email: fbUser.email || "",
+    displayName: fbUser.displayName || (fbUser.email || "Customer").split("@")[0],
+    role,
+    phone,
+  };
+};
+
+/** Loads (and on first sign-in creates) the profile on the server. The role is decided server-side. */
+const loadProfile = async (fbUser: FirebaseUser, phone?: string): Promise<UserProfile> => {
+  try {
+    const res = await authFetch("/api/auth/profile", {
+      method: "POST",
+      body: JSON.stringify({ phone }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return data.profile as UserProfile;
+    }
+  } catch (err) {
+    console.warn("Could not load profile from server:", err);
+  }
+  return profileFromToken(fbUser, phone);
+};
+
+const apiError = async (res: Response, fallback: string) => {
+  try {
+    const data = await res.json();
+    return new Error(data.error || fallback);
+  } catch {
+    return new Error(fallback);
+  }
+};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Helper to fetch or initialize user profile in Firestore
-  const fetchOrCreateProfile = async (fbUser: FirebaseUser): Promise<UserProfile> => {
-    const userDocRef = doc(db, "users", fbUser.uid);
-    try {
-      const docSnap = await getDoc(userDocRef);
-      if (docSnap.exists()) {
-        const data = docSnap.data() as UserProfile;
-        return data;
-      }
-    } catch (err) {
-      console.warn("Could not read profile from Firestore:", err);
-    }
-
-    // Determine if this user should be the first admin
-    let role: "admin" | "customer" = "customer";
-    const userEmail = (fbUser.email || "").toLowerCase();
-
-    if (INITIAL_ADMIN_EMAILS.includes(userEmail)) {
-      role = "admin";
-    } else {
-      // Check if there are any existing admins in Firestore
-      try {
-        const usersSnap = await getDocs(collection(db, "users"));
-        if (usersSnap.empty) {
-          // First user who signs up becomes admin!
-          role = "admin";
-        } else {
-          const hasAdmin = usersSnap.docs.some(d => d.data().role === "admin");
-          if (!hasAdmin) {
-            role = "admin";
-          }
-        }
-      } catch {
-        // Fallback: check localStorage for offline mock
-        if (typeof window !== "undefined") {
-          const savedUsers = JSON.parse(localStorage.getItem("cec_registered_users") || "[]");
-          if (savedUsers.length === 0) role = "admin";
-        }
-      }
-    }
-
-    const newProfile: UserProfile = {
-      uid: fbUser.uid,
-      email: fbUser.email || "",
-      displayName: fbUser.displayName || fbUser.email?.split("@")[0] || "Customer",
-      role,
-      createdAt: new Date().toISOString()
-    };
-
-    try {
-      await setDoc(userDocRef, {
-        ...newProfile,
-        createdAt: serverTimestamp()
-      });
-    } catch (err) {
-      console.warn("Could not save profile to Firestore:", err);
-    }
-
-    // Also persist locally
-    if (typeof window !== "undefined") {
-      try {
-        const savedUsers: UserProfile[] = JSON.parse(localStorage.getItem("cec_registered_users") || "[]");
-        const idx = savedUsers.findIndex(u => u.uid === newProfile.uid);
-        if (idx >= 0) savedUsers[idx] = newProfile;
-        else savedUsers.push(newProfile);
-        localStorage.setItem("cec_registered_users", JSON.stringify(savedUsers));
-      } catch {}
-    }
-
-    return newProfile;
-  };
-
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      if (currentUser && !currentUser.isAnonymous) {
-        try {
-          const prof = await fetchOrCreateProfile(currentUser);
-          setProfile(prof);
-        } catch {
-          setProfile({
-            uid: currentUser.uid,
-            email: currentUser.email || "",
-            displayName: currentUser.displayName || "Customer",
-            role: INITIAL_ADMIN_EMAILS.includes((currentUser.email || "").toLowerCase()) ? "admin" : "customer"
-          });
-        }
-      } else {
-        setProfile(null);
-      }
-      setLoading(false);
-    });
 
+
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      try {
+        if (currentUser && !currentUser.isAnonymous) {
+          setUser(currentUser);
+          setProfile(await loadProfile(currentUser));
+        } else {
+          setUser(null);
+          setProfile(null);
+          // Guests still get a background anonymous session so the cart and checkout keep working
+          if (!currentUser) signInAnonymously(auth).catch(() => {});
+        }
+      } catch (err) {
+        console.warn("Auth state handling failed:", err);
+      } finally {
+        setLoading(false); // always stop the loading state, even when offline
+      }
+    });
     return () => unsubscribe();
   }, []);
 
+  
   const signIn = async (email: string, password: string) => {
-    try {
-      const res = await signInWithEmailAndPassword(auth, email.trim(), password);
-      const prof = await fetchOrCreateProfile(res.user);
-      setProfile(prof);
-      toast.success(`Welcome back, ${prof.displayName || "Customer"}!`);
-    } catch (error: any) {
-      console.error("Sign in error:", error);
-      throw error;
-    }
+    const res = await signInWithEmailAndPassword(auth, email.trim(), password);
+    await res.user.getIdToken(true); // make sure we hold the freshest role claim
+    const prof = await loadProfile(res.user);
+    setUser(res.user);
+    setProfile(prof);
+    toast.success(`Welcome back, ${prof.displayName || "Customer"}!`);
+    return prof;
   };
 
   const signUp = async (name: string, email: string, password: string, phone?: string) => {
-    try {
-      const res = await createUserWithEmailAndPassword(auth, email.trim(), password);
-      if (name.trim()) {
-        await updateProfile(res.user, { displayName: name.trim() });
-      }
-      
-      const prof = await fetchOrCreateProfile(res.user);
-      if (phone && db) {
-        try {
-          await updateDoc(doc(db, "users", res.user.uid), { phone });
-          prof.phone = phone;
-        } catch {}
-      }
-      setProfile(prof);
-      toast.success(`Account created successfully! ${prof.role === 'admin' ? '(Admin Access Granted)' : ''}`);
-    } catch (error: any) {
-      console.error("Sign up error:", error);
-      throw error;
-    }
+    // Self-registration ALWAYS creates a customer. Admins can only be made by other admins.
+    const res = await createUserWithEmailAndPassword(auth, email.trim(), password);
+    if (name.trim()) await updateProfile(res.user, { displayName: name.trim() });
+    const prof = await loadProfile(res.user, phone?.trim());
+    setUser(res.user);
+    setProfile(prof);
+    toast.success("Account created successfully!");
+    return prof;
   };
 
   const signOut = async () => {
@@ -196,63 +164,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const updateUserRole = async (uid: string, role: "admin" | "customer") => {
-    try {
-      if (db) {
-        await updateDoc(doc(db, "users", uid), { role });
-      }
-      // Update local storage backup
-      if (typeof window !== "undefined") {
-        const savedUsers: UserProfile[] = JSON.parse(localStorage.getItem("cec_registered_users") || "[]");
-        const updated = savedUsers.map(u => u.uid === uid ? { ...u, role } : u);
-        localStorage.setItem("cec_registered_users", JSON.stringify(updated));
-      }
-      if (profile && profile.uid === uid) {
-        setProfile({ ...profile, role });
-      }
-      toast.success(`User role updated to ${role}`);
-    } catch (error: any) {
-      console.error("Update role error:", error);
-      toast.error("Failed to update user role");
+  const refreshProfile = async () => {
+    const current = auth.currentUser;
+    if (current && !current.isAnonymous) setProfile(await loadProfile(current));
+  };
+
+  const updateUserRole = async (uid: string, role: Role) => {
+    const res = await authFetch(`/api/admin/users/${uid}/role`, {
+      method: "PATCH",
+      body: JSON.stringify({ role }),
+    });
+    if (!res.ok) {
+      const err = await apiError(res, "Failed to update user role");
+      toast.error(err.message);
+      throw err;
     }
+    toast.success(role === "admin" ? "User is now an admin" : "Admin access removed");
   };
 
   const getAllUsers = async (): Promise<UserProfile[]> => {
-    try {
-      if (db) {
-        const snap = await getDocs(collection(db, "users"));
-        if (!snap.empty) {
-          return snap.docs.map(d => ({ uid: d.id, ...d.data() })) as UserProfile[];
-        }
-      }
-    } catch (err) {
-      console.warn("Could not fetch users from Firestore:", err);
-    }
+    const res = await authFetch("/api/admin/users");
+    if (!res.ok) throw await apiError(res, "Could not load users");
+    const data = await res.json();
+    return data.users as UserProfile[];
+  };
 
-    if (typeof window !== "undefined") {
-      try {
-        const saved: UserProfile[] = JSON.parse(localStorage.getItem("cec_registered_users") || "[]");
-        if (saved.length > 0) return saved;
-      } catch {}
-    }
-
-    return profile ? [profile] : [];
+  const createUser = async (input: { name: string; email: string; password: string; role: Role }) => {
+    const res = await authFetch("/api/admin/users", { method: "POST", body: JSON.stringify(input) });
+    if (!res.ok) throw await apiError(res, "Could not create the account");
   };
 
   const isAdmin = profile?.role === "admin";
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      profile,
-      isAdmin,
-      loading,
-      signIn,
-      signUp,
-      signOut,
-      updateUserRole,
-      getAllUsers
-    }}>
+    <AuthContext.Provider
+      value={{ user, profile, isAdmin, loading, signIn, signUp, signOut, updateUserRole, getAllUsers, createUser, refreshProfile }}
+    >
       {children}
     </AuthContext.Provider>
   );

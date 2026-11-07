@@ -1,8 +1,52 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+
+    // The role comes from a custom claim that ONLY the server (Admin SDK) can set.
+    function signedIn() { return request.auth != null; }
+    function isAdmin()  { return signedIn() && request.auth.token.role == 'admin'; }
+
+    // User profiles: you can read your own; admins can read all. Nobody writes from the browser —
+    // profiles and roles are created/changed only by the server (/api/auth/*, /api/admin/users/*).
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow write: if false;
     }
+
+    match /products/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+      match /reviews/{reviewId} {
+        allow read: if true;
+        allow create: if signedIn();
+        allow update, delete: if isAdmin();
+      }
+    }
+
+    match /blogPosts/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /guides/{id}    { allow read: if true; allow write: if isAdmin(); }
+
+    // Orders: shoppers (including guests) can place an order and look it up by its ID.
+    // Only admins can list, edit or delete orders.
+    match /orders/{id} {
+      allow get: if signedIn();
+      allow list: if isAdmin();
+      allow create: if signedIn() && request.resource.data.status == 'pending';
+      allow update, delete: if isAdmin();
+    }
+
+    // Carts are reachable only by their (unguessable) ID; nobody can list them.
+    match /carts/{id} {
+      allow get, create, update, delete: if signedIn();
+      allow list: if false;
+    }
+
+    // Feedback: anyone can submit; only admins can read or manage it.
+    match /feedback/{id} {
+      allow create: if signedIn();
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /{document=**} { allow read, write: if false; }
   }
 }

@@ -12,6 +12,7 @@ const nextConfig = {
       { protocol: "https", hostname: "pixabay.com" },
       { protocol: "https", hostname: "ui-avatars.com" },
       { protocol: "https", hostname: "*.googleusercontent.com" },
+      { protocol: "https", hostname: "res.cloudinary.com" },
     ],
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],

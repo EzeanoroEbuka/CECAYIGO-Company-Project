@@ -62,6 +62,11 @@ const config: Config = {
           ring: "hsl(var(--sidebar-ring))",
         },
 
+
+        brand: {
+          red: "#E51E25",
+          "red-dark": "#B71418",
+        },
         /* ── Figma hard-coded brand tokens ── */
         cec: {
           /* Warm cream hero background */

@@ -8,9 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Upload, X, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { db, storage } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { uploadImage } from "@/lib/cloudinaryUpload";
+
+
 
 export default function NewBlogPage() {
   const router = useRouter();
@@ -76,11 +78,8 @@ export default function NewBlogPage() {
     setIsSubmitting(true);
     
     try {
-      // Upload image to Firebase Storage
-      const storageRef = ref(storage, `blogs/${Date.now()}_${imageFile.name}`);
-      await uploadBytes(storageRef, imageFile);
-      const imageUrl = await getDownloadURL(storageRef);
-      
+            // Upload image to Cloudinary
+      const imageUrl = await uploadImage(imageFile, "blogs");
       // Filter out empty tags
       const filteredTags = formData.tags.filter(tag => tag.trim() !== '');
       

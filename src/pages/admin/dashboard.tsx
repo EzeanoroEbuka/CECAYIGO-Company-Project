@@ -46,7 +46,9 @@ interface BlogPost {
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const { isAdmin: authIsAdmin, getAllUsers, updateUserRole } = useAuth();
+  const { isAdmin: authIsAdmin, profile: myProfile, getAllUsers, updateUserRole, createUser } = useAuth();
+  const [newAdmin, setNewAdmin] = useState({ name: '', email: '', password: '' });
+  const [creatingAdmin, setCreatingAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -72,7 +74,7 @@ export default function AdminDashboard() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
         // User is not logged in, redirect to login page
-        router.push('/admin/login');
+        router.push('/login');
       } else {
         // User is logged in, fetch data
         fetchData();
@@ -157,7 +159,7 @@ export default function AdminDashboard() {
   const handleLogout = async () => {
     try {
       await auth.signOut();
-      router.push('/admin/login');
+      router.push('/login');
       toast.success('Logged out successfully');
     } catch (error) {
       console.error('Logout error:', error);
@@ -227,6 +229,26 @@ export default function AdminDashboard() {
       await updateUserRole(uid, newRole);
       setAllUsers(prev => prev.map(u => u.uid === uid ? { ...u, role: newRole } : u));
     } catch {}
+  };
+
+  // Create a new admin account (server verifies the caller is an admin)
+  const handleCreateAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newAdmin.email.trim() || newAdmin.password.length < 8) {
+      toast.error('Enter an email and a temporary password of at least 8 characters.');
+      return;
+    }
+    try {
+      setCreatingAdmin(true);
+      await createUser({ name: newAdmin.name, email: newAdmin.email, password: newAdmin.password, role: 'admin' });
+      toast.success('Admin account created. They will be asked to choose a new password at first sign-in.');
+      setNewAdmin({ name: '', email: '', password: '' });
+      setAllUsers(await getAllUsers());
+    } catch (err: any) {
+      toast.error(err?.message || 'Could not create admin');
+    } finally {
+      setCreatingAdmin(false);
+    }
   };
 
   // Save / update a video guide
@@ -725,9 +747,24 @@ export default function AdminDashboard() {
                   <UserCog className='h-5 w-5 text-brand-blue' /> Users & Role Management
                 </h2>
                 <p className='text-xs text-gray-500 mt-0.5'>
-                  Manage customer accounts. Promote trusted users to Admin or revoke admin privileges.
+                  Create admins, promote trusted customers, or revoke admin access. Only admins can do this.
                 </p>
               </div>
+
+              <Card>
+                <CardHeader className='pb-2'>
+                  <CardTitle className='text-lg'>Create a new admin</CardTitle>
+                  <p className='text-xs text-gray-500'>Only admins can do this. Give them a temporary password — they must change it when they first sign in.</p>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleCreateAdmin} className='grid gap-3 md:grid-cols-4'>
+                    <Input placeholder='Full name' value={newAdmin.name} onChange={(e) => setNewAdmin({ ...newAdmin, name: e.target.value })} />
+                    <Input type='email' placeholder='Email' value={newAdmin.email} onChange={(e) => setNewAdmin({ ...newAdmin, email: e.target.value })} required />
+                    <Input type='text' placeholder='Temporary password (min. 8)' value={newAdmin.password} onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })} required />
+                    <Button type='submit' disabled={creatingAdmin}>{creatingAdmin ? 'Creating…' : 'Create admin'}</Button>
+                  </form>
+                </CardContent>
+              </Card>
 
               <Card>
                 <CardHeader className='pb-2'>
@@ -773,7 +810,9 @@ export default function AdminDashboard() {
                                 </Badge>
                               </td>
                               <td className='px-4 py-3'>
-                                {u.role === 'admin' ? (
+                                {u.uid === myProfile?.uid ? (
+                                  <span className='text-xs text-gray-400'>You</span>
+                                ) : u.role === 'admin' ? (
                                   <Button
                                     variant='outline'
                                     size='sm'

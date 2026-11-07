@@ -26,9 +26,37 @@ import {
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
+
+
+function friendlyAuthError(err: any): string {
+  switch (err?.code) {
+    case "auth/invalid-credential":
+    case "auth/wrong-password":
+    case "auth/user-not-found":
+      return "Incorrect email or password.";
+    case "auth/email-already-in-use":
+      return "An account with this email already exists. Try signing in instead.";
+    case "auth/weak-password":
+      return "Password is too weak. Use at least 6 characters.";
+    case "auth/invalid-email":
+      return "Please enter a valid email address.";
+    case "auth/too-many-requests":
+      return "Too many attempts. Please wait a few minutes and try again.";
+    case "auth/network-request-failed":
+      return "Network problem. Check your internet connection and try again.";
+    case "auth/operation-not-allowed":
+      return "Email/password sign-in is not enabled in Firebase yet (Firebase Console → Authentication → Sign-in method → Email/Password).";
+    case "auth/api-key-not-valid.-please-pass-a-valid-api-key.":
+    case "auth/invalid-api-key":
+      return "Firebase configuration is invalid. Check the NEXT_PUBLIC_FIREBASE_* values in your .env file.";
+    default:
+      return err?.message || "Authentication failed. Please check your details.";
+  }
+}
+
 export default function LoginPage() {
   const router = useRouter();
-  const { signIn, signUp, profile, isAdmin } = useAuth();
+  const { signIn, signUp } = useAuth();
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -38,6 +66,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
+  const [formError, setFormError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,29 +76,43 @@ export default function LoginPage() {
     }
 
     try {
+       setFormError("");
       setLoading(true);
+     
+      let prof;
       if (isRegisterMode) {
         if (!name.trim()) {
           toast.error("Please provide your full name.");
           setLoading(false);
           return;
         }
-        await signUp(name, email, password, phone);
+        prof = await signUp(name, email, password, phone);
       } else {
-        await signIn(email, password);
+        prof = await signIn(email, password);
       }
 
+      // Only follow same-site redirects (prevents being sent to another website)
       const redirectPath = router.query.redirect as string;
-      if (redirectPath) {
-        router.push(redirectPath);
+      const safeRedirect =
+        redirectPath && redirectPath.startsWith("/") && !redirectPath.startsWith("//")
+          ? redirectPath
+          : null;
+
+      if (prof.mustChangePassword) {
+        router.push("/account/security");
+      } else if (safeRedirect) {
+        router.push(safeRedirect);
+      } else if (prof.role === "admin") {
+        router.push("/admin/dashboard");
       } else {
         router.push("/products");
       }
+
     } catch (err: any) {
       console.error(err);
-      toast.error(
-        err.message || "Authentication failed. Please check your details.",
-      );
+      const message = friendlyAuthError(err);
+      setFormError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -111,10 +154,13 @@ export default function LoginPage() {
               company portal.
             </p>
           </div>
+            
 
           <Card className="border border-border bg-card rounded-3xl shadow-md overflow-hidden">
             {/* Mode Switcher */}
             <div className="grid grid-cols-2 border-b border-border bg-muted">
+              
+                
               <button
                 type="button"
                 onClick={() => setIsRegisterMode(false)}
@@ -126,6 +172,7 @@ export default function LoginPage() {
               >
                 Sign In
               </button>
+                
               <button
                 type="button"
                 onClick={() => setIsRegisterMode(true)}
@@ -223,14 +270,13 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                {isRegisterMode && (
-                  <div className="text-[11px] text-muted-foreground bg-cream-50 dark:bg-gray-800/60 p-3 rounded-xl border border-border">
-                    <ShieldCheck className="h-4 w-4 text-brand-red inline mr-1 -mt-0.5" />
-                    The first registered account automatically receives full
-                    Administrator privileges.
+
+                {formError && (
+                  <div role="alert" className="rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-xs text-red-700">
+                    {formError}
                   </div>
                 )}
-
+                
                 <Button
                   type="submit"
                   disabled={loading}

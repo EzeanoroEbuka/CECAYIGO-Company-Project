@@ -1,13 +1,12 @@
 import { Layout } from "@/components/layout/Layout";
 import Chatbot from "@/components/layout/Chatbot";
 import "@/styles/globals.css";
+import { Toaster } from "sonner";
 import type { AppProps } from "next/app";
 import { Poppins } from "next/font/google";
 import Head from "next/head";
 import Script from "next/script";
-import { useEffect } from "react";
-import { auth } from "@/lib/firebase";
-import { signInAnonymously } from "firebase/auth";
+
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -16,13 +15,7 @@ const poppins = Poppins({
 });
 
 export default function App({ Component, pageProps }: AppProps) {
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!auth.currentUser) {
-      signInAnonymously(auth).catch(() => {});
-    }
-  }, []);
-
+ 
   return (
     <>
       <Head>
@@ -96,6 +89,7 @@ export default function App({ Component, pageProps }: AppProps) {
           <Component {...pageProps} />
         </Layout>
         <Chatbot />
+        <Toaster position="top-center" richColors closeButton />
       </main>
 
       {/* Noscript fallbacks */}
