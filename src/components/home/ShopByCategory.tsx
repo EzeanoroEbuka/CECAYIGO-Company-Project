@@ -17,36 +17,36 @@ const CATEGORIES = [
     name: "Inverters",
     count: "67+ Products",
     href: "/products?category=Hybrid+inverters",
-    img: "https://images.unsplash.com/photo-1558449028-b53a39d100fc?w=600&q=80",
+    img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaaZXaQgKoorEknAtfj_StvZJabcfELpI-8A02De__RCuD43Z86BQA7Fr7&s=10",
   },
   {
     id: "batteries",
     name: "Batteries",
     count: "124+ Products",
     href: "/products?category=Lithium+battery%2C+lithium+tubular+battery",
-    img: "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?w=600&q=80",
+    img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8oz7Y9BPrcDD7Vylv3ZfoGlHzcss5VwssTxN1cbF4OjDTvSUS3Uf-H3g&s=10",
   },
   {
     id: "street-lights",
     name: "Street Lights",
     count: "98+ Products",
     href: "/products?category=Solar+streetlights",
-    img: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=600&q=80",
+    img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAzRvEIQb0Ap5-Z2CIi0L6h8rIR4OBARZ9Ccp-eoYdmA&s=10",
   },
   {
     id: "solar-cameras",
     name: "Solar Cameras",
     count: "56+ Products",
     href: "/products?category=Solar+cameras",
-    img: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&q=80",
+    img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsqOnm2c9rFmUJrW-OsieAvJzi2XJu8E1whQuwUMgpog&s=10",
   },
   {
     id: "solar-fans",
     name: "Solar Fans",
     count: "42+ Products",
     href: "/products?category=Solar+fans",
-    img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80",
-  },
+    img: "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQrjJIkmDqwVFDf2YMRoKlQG4QhzdjRfXTvI85ObWi-hrAASMKpwKL36-WP18BV084uSIWo7yQj601dn0Ws04VG112W4hcNi2pXL8vYUnzvSdBdhQn23antTQ&usqp=CAc",
+  }
 ];
 
 export function ShopByCategory() {
@@ -83,7 +83,7 @@ export function ShopByCategory() {
               <Link href={cat.href} className="group block">
                 <div className="bg-white rounded-xl overflow-hidden border border-cec-gray-bd shadow-card hover:shadow-card-md transition-shadow duration-200">
                   {/* Photo */}
-                  <div className="relative w-full aspect-[4/3] overflow-hidden">
+                  <div className="relative w-full aspect-[1/1] overflow-hidden">
                     <Image
                       src={cat.img} alt={cat.name}
                       fill sizes="(max-width:640px) 50vw, 33vw"
