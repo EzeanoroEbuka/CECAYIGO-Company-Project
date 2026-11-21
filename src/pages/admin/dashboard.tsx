@@ -10,7 +10,8 @@ import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
 import { toast } from 'sonner';
-import { Package, Users, DollarSign, ShoppingCart, PlusCircle, Edit, Trash2, LogOut, MessageSquare, MessageCircle, ShieldCheck, ShieldAlert, Video, UserCog, Star } from 'lucide-react';
+import { uploadVideo } from '@/lib/cloudinaryUpload';
+import { Package, Users, DollarSign, ShoppingCart, PlusCircle, Edit, Trash2, LogOut, MessageSquare, MessageCircle, ShieldCheck, ShieldAlert, Video, UserCog, Upload } from 'lucide-react';
 import { format } from 'date-fns';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
@@ -69,6 +70,8 @@ export default function AdminDashboard() {
   const [guideFormOpen, setGuideFormOpen] = useState(false);
   const [editingGuide, setEditingGuide] = useState<Partial<AdminGuideItem> | null>(null);
   const [savingGuide, setSavingGuide] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [videoProgress, setVideoProgress] = useState(0);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -251,6 +254,26 @@ export default function AdminDashboard() {
     }
   };
 
+
+
+  // Upload a video from this computer (stored on Cloudinary) and use its link for the guide
+const handleVideoFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  e.target.value = '';
+  if (!file) return;
+  try {
+    setUploadingVideo(true);
+    setVideoProgress(0);
+    const url = await uploadVideo(file, setVideoProgress);
+    setEditingGuide(g => ({ ...g, videoEmbedUrl: url }));
+    toast.success('Video uploaded. Click Save to finish the guide.');
+  } catch (err) {
+    toast.error(err instanceof Error ? err.message : 'Video upload failed.');
+  } finally {
+    setUploadingVideo(false);
+  }
+};
+
   // Save / update a video guide
   const handleSaveGuide = async () => {
     if (!editingGuide?.title || !editingGuide?.videoEmbedUrl) {
@@ -327,7 +350,6 @@ export default function AdminDashboard() {
         </header>
 
         <main className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-          {/* Stats Cards */}
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
             <Card>
               <CardContent className='p-6 flex items-center'>
@@ -360,7 +382,7 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <p className='text-sm font-medium text-gray-500 dark:text-gray-400'>Total Customers</p>
-                  <h3 className='text-2xl font-bold text-gray-900 dark:text-white'>{stats.totalCustomers}</h3>
+                  <h3 className='text-2xl font-bold text-gray-900 dark:text-white'>{allUsers.length > 0 ? allUsers.filter((u) => u.role === 'customer').length : stats.totalCustomers}</h3>
                 </div>
               </CardContent>
             </Card>
@@ -380,8 +402,7 @@ export default function AdminDashboard() {
 
           {/* Main Content Tabs */}
           <Tabs defaultValue='products' className='space-y-6'>
-            <TabsList className='bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-1 rounded-lg flex flex-wrap gap-1'>
-              <TabsTrigger value='products'>Products</TabsTrigger>
+            <TabsList className='bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-1 rounded-lg flex h-auto w-full justify-start gap-1 overflow-x-auto [&>*]:shrink-0'>              <TabsTrigger value='products'>Products</TabsTrigger>
               <TabsTrigger value='orders'>Orders</TabsTrigger>
               <TabsTrigger value='feedback' className='flex items-center gap-1.5'>
                 <MessageSquare className='h-3.5 w-3.5 text-brand-red' />
@@ -392,8 +413,8 @@ export default function AdminDashboard() {
                   </span>
                 )}
               </TabsTrigger>
-              <TabsTrigger value='customers'>Customers</TabsTrigger>
-              <TabsTrigger value='settings'>Settings</TabsTrigger>
+                <TabsTrigger value='users'>Users & Admins</TabsTrigger>
+                <TabsTrigger value='guides'>Video Guides</TabsTrigger>
               <TabsTrigger value='blog'>Blog Posts</TabsTrigger>
             </TabsList>
             
@@ -606,12 +627,17 @@ export default function AdminDashboard() {
                         </select>
                       </div>
                       <div>
-                        <label className='block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1'>YouTube/Video Embed URL *</label>
+                        <label className='block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1'>Video link (YouTube, Vimeo or direct .mp4) *</label>
                         <Input 
-                          placeholder='https://www.youtube.com/embed/VIDEO_ID'
+                          placeholder='https://www.youtube.com/watch?v=VIDEO_ID'
                           value={editingGuide.videoEmbedUrl || ''}
                           onChange={e => setEditingGuide(g => ({ ...g, videoEmbedUrl: e.target.value }))}
                         />
+                        <label className='mt-2 inline-flex cursor-pointer items-center gap-2 rounded-md border border-gray-300 dark:border-gray-600 px-3 py-1.5 text-xs font-semibold hover:bg-gray-50 dark:hover:bg-gray-700'>
+                          <Upload className='h-3.5 w-3.5' />
+                          {uploadingVideo ? `Uploading… ${videoProgress}%` : 'Or upload a video from this computer'}
+                          <input type='file' accept='video/*' className='hidden' disabled={uploadingVideo} onChange={handleVideoFile} />
+                        </label>
                       </div>
                       <div>
                         <label className='block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1'>Video Duration</label>
@@ -653,7 +679,7 @@ export default function AdminDashboard() {
                     <div className='flex items-center gap-3'>
                       <Button 
                         onClick={handleSaveGuide} 
-                        disabled={savingGuide}
+                        disabled={savingGuide || uploadingVideo}
                         className='bg-brand-red hover:bg-brand-red-dark text-white'
                       >
                         {savingGuide ? 'Saving...' : 'Save Guide'}

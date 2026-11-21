@@ -2,7 +2,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { createHash } from "crypto";
 import { requireAdmin } from "@/lib/server-auth";
 
-const ALLOWED_FOLDERS = ["products", "blogs"];
+const ALLOWED_FOLDERS = ["products", "blogs", "guides"];
+
 
 /** POST /api/admin/upload-signature — gives a signed, short-lived permit to upload ONE image. Admin only. */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

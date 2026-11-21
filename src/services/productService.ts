@@ -323,35 +323,44 @@ export const DEFAULT_COMPANY_PRODUCTS: Product[] = [
 ];
 
 export const productService = {
-  async getFeaturedProducts(limitCount = 6): Promise<Product[]> {
-    // 1. Try server API
-    try {
-      const res = await fetch(`/api/products/featured?limit=${encodeURIComponent(String(limitCount))}`);
-      if (res.ok) {
-        const json = (await res.json()) as { products: any[] };
-        if (Array.isArray(json.products) && json.products.length > 0) {
-          return json.products as unknown as Product[];
-        }
-      }
-    } catch {}
+  // async getFeaturedProducts(limitCount = 6): Promise<Product[]> {
+  //   // 1. Try server API
+  //   try {
+  //     const res = await fetch(`/api/products/featured?limit=${encodeURIComponent(String(limitCount))}`);
+  //     if (res.ok) {
+  //       const json = (await res.json()) as { products: any[] };
+  //       if (Array.isArray(json.products) && json.products.length > 0) {
+  //         return json.products as unknown as Product[];
+  //       }
+  //     }
+  //   } catch {}
 
-    // 2. Fallback to client Firestore
-    try {
-      if (db) {
-        const productsQuery = query(
-          collection(db, 'products'),
-          where('featured', '==', true),
-          limit(limitCount)
-        );
-        const snapshot = await getDocs(productsQuery);
-        if (!snapshot.empty) {
-          return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Product[];
-        }
-      }
-    } catch {}
+  //   // 2. Fallback to client Firestore
+  //   try {
+  //     if (db) {
+  //       const productsQuery = query(
+  //         collection(db, 'products'),
+  //         where('featured', '==', true),
+  //         limit(limitCount)
+  //       );
+  //       const snapshot = await getDocs(productsQuery);
+  //       if (!snapshot.empty) {
+  //         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Product[];
+  //       }
+  //     }
+  //   } catch {}
 
-    // 3. Fallback to rich company defaults
-    return DEFAULT_COMPANY_PRODUCTS.filter(p => p.featured).slice(0, limitCount);
+  //   // 3. Fallback to rich company defaults
+  //   return DEFAULT_COMPANY_PRODUCTS.filter(p => p.featured).slice(0, limitCount);
+  // },
+
+    async getFeaturedProducts(limitCount = 6): Promise<Product[]> {
+    // Real products from the database: featured ones first, then the newest others.
+    // The built-in sample products only appear if the database has no products at all.
+    const all = await productService.getAllProducts();
+    const featured = all.filter((p) => p.featured);
+    const others = all.filter((p) => !p.featured);
+    return [...featured, ...others].slice(0, limitCount);
   },
   
   async getAllProducts(): Promise<Product[]> {

@@ -42,6 +42,10 @@ interface AuthContextType {
   refreshProfile: () => Promise<void>;
 }
 
+
+const IDLE_LIMIT_MS = 20 * 60 * 1000; // 20 minutes
+const ACTIVITY_KEY = "cec_last_activity";
+
 const noop = async () => {
   throw new Error("AuthProvider is missing");
 };
@@ -136,6 +140,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const res = await signInWithEmailAndPassword(auth, email.trim(), password);
     await res.user.getIdToken(true); // make sure we hold the freshest role claim
     const prof = await loadProfile(res.user);
+    localStorage.setItem(ACTIVITY_KEY, String(Date.now())); // fresh session = active now
     setUser(res.user);
     setProfile(prof);
     toast.success(`Welcome back, ${prof.displayName || "Customer"}!`);
@@ -147,6 +152,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const res = await createUserWithEmailAndPassword(auth, email.trim(), password);
     if (name.trim()) await updateProfile(res.user, { displayName: name.trim() });
     const prof = await loadProfile(res.user, phone?.trim());
+    localStorage.setItem(ACTIVITY_KEY, String(Date.now())); // fresh session = active now
     setUser(res.user);
     setProfile(prof);
     toast.success("Account created successfully!");
@@ -193,6 +199,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const res = await authFetch("/api/admin/users", { method: "POST", body: JSON.stringify(input) });
     if (!res.ok) throw await apiError(res, "Could not create the account");
   };
+
+
+    // Auto sign-out after 20 minutes of inactivity (customers and admins)
+  useEffect(() => {
+    if (!user) return;
+
+  
+    const lastActive = () => Number(localStorage.getItem(ACTIVITY_KEY) || Date.now());
+    const expire = async () => {
+      console.info("[idle] signing out after inactivity");
+      localStorage.removeItem(ACTIVITY_KEY);
+      await firebaseSignOut(auth);
+      toast.info("You were signed out after 30 minutes of inactivity. Please sign in again.");
+    };
+
+    // Came back after being away longer than the limit (e.g. closed the browser)
+    if (Date.now() - lastActive() > IDLE_LIMIT_MS) {
+      expire();
+      return;
+    }
+
+    let lastWrite = 0;
+    const markActive = () => {
+      const t = Date.now();
+      if (t - lastWrite > 5000) {
+        lastWrite = t;
+        localStorage.setItem(ACTIVITY_KEY, String(t));
+      }
+    };
+    markActive();
+
+    const events = ["mousemove", "mousedown", "keydown", "scroll", "touchstart", "click"];
+    events.forEach((e) => window.addEventListener(e, markActive, { passive: true }));
+    const timer = setInterval(() => {
+      if (Date.now() - lastActive() > IDLE_LIMIT_MS) expire();
+    }, 30000);
+
+    return () => {
+      events.forEach((e) => window.removeEventListener(e, markActive));
+      clearInterval(timer);
+    };
+  }, [user]);
 
   const isAdmin = profile?.role === "admin";
 

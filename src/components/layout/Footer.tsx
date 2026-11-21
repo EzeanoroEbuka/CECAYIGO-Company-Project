@@ -103,7 +103,7 @@ export function Footer() {
             </p>
             <ul className="space-y-2.5">
               {PRODUCTS.map((l) => (
-                <li key={l.href}>
+                <li key={`${l.label}-${l.href}`}>
                   <Link
                     href={l.href}
                     className="text-sm text-white/60 hover:text-white transition-colors"
@@ -122,7 +122,7 @@ export function Footer() {
             </p>
             <ul className="space-y-2.5">
               {COMPANY.map((l) => (
-                <li key={l.href}>
+                <li key={`${l.label}-${l.href}`}>
                   <Link
                     href={l.href}
                     className="text-sm text-white/60 hover:text-white transition-colors"
@@ -138,7 +138,7 @@ export function Footer() {
             </p>
             <ul className="space-y-2.5">
               {SUPPORT.map((l) => (
-                <li key={l.href}>
+                <li key={`${l.label}-${l.href}`}>
                   <Link
                     href={l.href}
                     className="text-sm text-white/60 hover:text-white transition-colors"

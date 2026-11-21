@@ -17,6 +17,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { guideService, AdminGuideItem } from "@/services/guideService";
+import { resolveVideo } from "@/lib/videoUrl";
+
 
 export default function GuidesAndVideosPage() {
   const [guides, setGuides] = useState<AdminGuideItem[]>([]);
@@ -362,14 +364,25 @@ export default function GuidesAndVideosPage() {
               >
                 ✕
               </button>
+  
               <div className="aspect-video w-full">
-                <iframe
-                  src={activeVideoModal}
-                  title="Product Tutorial"
-                  className="w-full h-full border-0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
+                {resolveVideo(activeVideoModal).kind === "file" ? (
+                  <video
+                    src={resolveVideo(activeVideoModal).src}
+                    controls
+                    autoPlay
+                    playsInline
+                    className="w-full h-full bg-black"
+                  />
+                ) : (
+                  <iframe
+                    src={resolveVideo(activeVideoModal).src}
+                    title="Product Tutorial"
+                    className="w-full h-full border-0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                )}
               </div>
             </motion.div>
           </motion.div>

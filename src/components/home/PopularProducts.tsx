@@ -20,11 +20,11 @@ interface Product {
 }
 
 const TABS = [
-  { label: "All Products",   value: "" },
-  { label: "Solar Panels",   value: "Solar+panels" },
-  { label: "Street Lights",  value: "Solar+streetlights" },
-  { label: "Inverters",      value: "Hybrid+inverters" },
-  { label: "Batteries",      value: "Lithium+battery" },
+  { label: "All Products",  value: "" },
+  { label: "Flood Lights",  value: "floodlight" },
+  { label: "Fans",          value: "fans" },
+  { label: "Street Lights", value: "streetlight" },
+  { label: "Cameras",       value: "camera" },
 ];
 
 export function PopularProducts() {
