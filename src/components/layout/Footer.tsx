@@ -68,7 +68,7 @@ export function Footer() {
             <Link href="/" className="inline-block bg-white p-2 rounded-lg">
               <Image
                 src="/image/cec-logo.png"
-                alt="CEC Lighting"
+                alt="CEC AYIGO Lighting"
                 width={130}
                 height={36}
                 className="h-8 w-auto object-contain"
@@ -76,8 +76,8 @@ export function Footer() {
             </Link>
 
             <p className="text-sm leading-relaxed text-white/65 max-w-xs">
-              CEC Ayigo and Sons Lightings — CAC-registered distributor of solar
-              systems, LED lighting, inverters and electrical accessories.
+              CEC AYIGO and Sons Lightings — CAC AYIGO-registered distributor of solar
+              systems, LED lighting, Solar Fans and Solar Cameras.
               Headquartered at Alaba International Market, Lagos.
             </p>
 
@@ -176,10 +176,10 @@ export function Footer() {
               <div className="flex items-center gap-3">
                 <Phone className="h-4 w-4 text-cec-red flex-shrink-0" />
                 <a
-                  href="tel:+2349073406000"
+                  href="tel:+2349046590485"
                   className="hover:text-white transition-colors"
                 >
-                  +234 907 340 6000
+                  +234 904 659 0485
                 </a>
               </div>
               <div className="flex items-center gap-3">
@@ -195,7 +195,7 @@ export function Footer() {
 
             {/* WhatsApp CTA */}
             <a
-              href="https://wa.me/2348147254399"
+              href="https://wa.me/2349046590485"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-5 inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors active:scale-95"

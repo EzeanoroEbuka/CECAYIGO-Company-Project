@@ -219,7 +219,6 @@ export function Header() {
           <button
             onClick={() => setMobileOpen((v) => !v)}
             aria-label="Toggle menu"
-            // className="lg:hidden h-9 w-9 flex items-center justify-center rounded-md border border-cec-gray-bd hover:bg-cec-gray-lt transition-colors"
             className="lg:hidden h-9 w-9 flex items-center justify-center rounded-md border border-cec-gray-bd text-cec-charcoal hover:bg-cec-gray-lt transition-colors"
           >
             {mobileOpen ? (

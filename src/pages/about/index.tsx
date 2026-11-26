@@ -141,7 +141,7 @@ const AboutPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
             >
-              About <span className="text-brand-red">CeC</span>
+              About <span className="text-brand-red">CEC AYIGO</span>
             </motion.h1>
 
             <motion.p

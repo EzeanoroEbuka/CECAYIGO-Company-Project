@@ -68,7 +68,7 @@ export function HeroSection() {
           {/* Sub-copy */}
           <FadeUp delay={0.1}>
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-xl mb-8">
-              CEC Ayigo and Sons Lightings supplies commercial LED lighting,
+              CEC AYIGO and Sons Lightings supplies commercial LED lighting,
               solar systems, smart inverters, and electrical accessories to
               contractors, businesses, and homeowners across Nigeria.
             </p>
@@ -144,14 +144,14 @@ export function AboutSection() {
         {/* Section label */}
         <FadeUp>
           <p className="text-xs font-semibold uppercase tracking-[0.15em] text-primary mb-2">
-            About CEC Ayigo
+            About CEC AYIGO
           </p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4 max-w-xl">
             Powering Nigeria with clean, reliable energy
           </h2>
           <p className="text-muted-foreground leading-relaxed max-w-2xl mb-12">
             Founded and based at Alaba International Market in Lagos — the
-            largest electronics market in West Africa — CEC Ayigo and Sons
+            largest electronics market in West Africa — CEC AYIGO and Sons
             Lightings has grown from a single showroom into a nationally
             recognised distributor of solar and electrical products. We combine
             deep technical expertise with hands-on customer support to help
@@ -202,7 +202,7 @@ export function GrowthSection() {
     {
       year: "2019",
       title: "CAC Incorporation",
-      body: "Formally incorporated as CEC Ayigo and Sons Lightings Ltd under the Corporate Affairs Commission.",
+      body: "Formally incorporated as CEC AYIGO and Sons Lightings Ltd under the Corporate Affairs Commission.",
     },
     {
       year: "2022",

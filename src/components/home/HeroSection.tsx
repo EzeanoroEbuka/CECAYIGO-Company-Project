@@ -26,14 +26,6 @@ function FadeUp({
   );
 }
 
-// const HERO_IMG_CANDIDATES = [
-//   "/image/hero-products.png",
-//   "/image/cec.png",
-//   "/image/logo.png",
-//   "/image/cec-logo.png",
-// ];
-
-
 /* Product images shown in the hero — solar-related */
 const HERO_IMAGES = [
   {
@@ -69,7 +61,7 @@ export function HeroSection() {
           <div>
             <FadeUp delay={0}>
               <p className="text-cec-red text-xs font-bold uppercase tracking-widest mb-3">
-                CEC Lighting — Lagos, Nigeria
+                CEC AYIGO Lighting — Lagos, Nigeria
               </p>
             </FadeUp>
 
@@ -84,7 +76,7 @@ export function HeroSection() {
             <FadeUp delay={0.12}>
               <p className="text-cec-gray-text text-base leading-relaxed max-w-lg mb-8">
                 Nigeria's trusted distributor of solar systems, LED street
-                lights, floodlights, smart inverters and energy storage —
+                lights, floodlights, smart Solar Cameras, Solar Fans and energy storage —
                 supplied from our Alaba International Market showroom to every
                 state.
               </p>
