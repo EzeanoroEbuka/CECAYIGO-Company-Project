@@ -64,7 +64,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         email: email.trim().toLowerCase(),
         password,
         displayName,
-        emailVerified: true,
+        emailVerified: false,
       });
       await auth.setCustomUserClaims(record.uid, { role: newRole });
       await db.collection("users").doc(record.uid).set({
@@ -77,6 +77,46 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         createdBy: caller.uid,
         createdAt: new Date().toISOString(),
       });
+
+
+      // Ask Firebase to email them a verification link right away
+      // (the Admin SDK cannot send it, so we sign in as them once with the temporary password).
+      let verificationEmailSent = false;
+      try {
+        const key = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+        const signIn = await fetch(
+          `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${key}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: email.trim().toLowerCase(), password, returnSecureToken: true }),
+          }
+        );
+        const signInData = await signIn.json();
+        if (signIn.ok && signInData.idToken) {
+          const send = await fetch(
+            `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${key}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ requestType: "VERIFY_EMAIL", idToken: signInData.idToken }),
+            }
+          );
+          verificationEmailSent = send.ok;
+        }
+      } catch (e) {
+        console.warn("Could not send verification email:", e);
+      }
+
+      // return res.status(201).json({
+      //   user: { uid: record.uid, email: record.email, displayName, role: newRole },
+      //   verificationEmailSent,
+      // });
+
+
+
+
+
       return res.status(201).json({
         user: { uid: record.uid, email: record.email, displayName, role: newRole },
       });

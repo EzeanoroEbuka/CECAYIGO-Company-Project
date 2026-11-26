@@ -56,7 +56,7 @@ function friendlyAuthError(err: any): string {
 
 export default function LoginPage() {
   const router = useRouter();
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, resetPassword } = useAuth();
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -118,6 +118,20 @@ export default function LoginPage() {
     }
   };
 
+    const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      toast.error("Enter your email address above first, then click Forgot password.");
+      return;
+    }
+    try {
+      await resetPassword(email);
+      // Same message whether or not the account exists, so strangers can't probe for accounts
+      toast.success("If an account exists for that email, a password reset link is on its way. Check your spam folder too.");
+    } catch (err: any) {
+      toast.error(friendlyAuthError(err));
+    }
+  };
+
   return (
     <>
       <Head>
@@ -160,7 +174,17 @@ export default function LoginPage() {
             {/* Mode Switcher */}
             <div className="grid grid-cols-2 border-b border-border bg-muted">
               
-                
+              {/* {!isRegisterMode && (
+                <div className="text-right -mt-2">
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    className="text-xs font-semibold text-brand-red hover:underline"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+              )} */}
               <button
                 type="button"
                 onClick={() => setIsRegisterMode(false)}
@@ -256,7 +280,8 @@ export default function LoginPage() {
                       onChange={(e) => setPassword(e.target.value)}
                       className="pl-10 pr-10 h-11 bg-input border-border focus:border-brand-red rounded-xl text-sm"
                     />
-                    <button
+
+                      <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
@@ -269,14 +294,26 @@ export default function LoginPage() {
                     </button>
                   </div>
                 </div>
-
-
+                
                 {formError && (
                   <div role="alert" className="rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-xs text-red-700">
                     {formError}
                   </div>
                 )}
-                
+
+                {!isRegisterMode && (
+                  <div className="text-right  -mt-2">
+                    <button
+                      type="button"
+                      onClick={handleForgotPassword}
+                      className="text-xs font-semibold text-brand-red hover:underline"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
+                )}
+
+
                 <Button
                   type="submit"
                   disabled={loading}

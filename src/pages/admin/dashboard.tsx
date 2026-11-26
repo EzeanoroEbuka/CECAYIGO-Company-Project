@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { feedbackService, FeedbackSubmission } from '@/services/feedbackService';
 import { guideService, AdminGuideItem } from '@/services/guideService';
 import { useAuth, UserProfile } from '@/contexts/AuthContext';
+import { GUIDE_CATEGORIES } from '@/lib/guideCategories';
 
 interface Order {
   id: string;
@@ -243,9 +244,13 @@ export default function AdminDashboard() {
     }
     try {
       setCreatingAdmin(true);
-      await createUser({ name: newAdmin.name, email: newAdmin.email, password: newAdmin.password, role: 'admin' });
-      toast.success('Admin account created. They will be asked to choose a new password at first sign-in.');
-      setNewAdmin({ name: '', email: '', password: '' });
+
+      const emailSent = await createUser({ name: newAdmin.name, email: newAdmin.email, password: newAdmin.password, role: 'admin' });
+      toast.success(
+        emailSent
+          ? 'Admin account created. A verification email was sent; they must verify it and choose a new password at first sign-in.'
+          : 'Admin account created, but the verification email could not be sent. They can request it again after signing in.'
+      );
       setAllUsers(await getAllUsers());
     } catch (err: any) {
       toast.error(err?.message || 'Could not create admin');
@@ -460,7 +465,8 @@ const handleVideoFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
                                 {product.category}
                               </td>
                               <td className='px-6 py-4'>
-                                <span className={`px-2 py-1 rounded-full text-xs ${product.inStock ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`}>
+                                
+                                <span className={`inline-block whitespace-nowrap px-2 py-1 rounded-full text-xs ${product.inStock ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`}>
                                   {product.inStock ? 'In Stock' : 'Out of Stock'}
                                 </span>
                               </td>
@@ -619,11 +625,9 @@ const handleVideoFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
                           onChange={e => setEditingGuide(g => ({ ...g, category: e.target.value as any }))}
                           className='w-full h-10 px-3 rounded-md border border-input bg-background text-sm'
                         >
-                          <option value='lighting'>LED & Floodlights</option>
-                          <option value='breakers'>Smart Breakers & DB</option>
-                          <option value='solar'>Solar Inverters & Batteries</option>
-                          <option value='wiring'>Wiring & Cables</option>
-                          <option value='general'>General Safety</option>
+                          {GUIDE_CATEGORIES.map((c) => (
+                              <option key={c.id} value={c.id}>{c.label}</option>
+                        ))}
                         </select>
                       </div>
                       <div>
@@ -825,8 +829,9 @@ const handleVideoFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
                               <td className='px-4 py-3'>
                                 <Badge className={`text-[10px] font-bold ${
                                   u.role === 'admin' 
-                                    ? 'bg-brand-red/15 text-brand-red border-brand-red/20' 
-                                    : 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400'
+
+                                    ? 'bg-brand-red/15 text-brand-red border-brand-red/20 hover:bg-brand-red/25 hover:text-brand-red' 
+                                    : 'bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300'
                                 }`}>
                                   {u.role === 'admin' ? (
                                     <><ShieldCheck className='h-3 w-3 inline mr-1' />Admin</>
@@ -842,7 +847,7 @@ const handleVideoFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
                                   <Button
                                     variant='outline'
                                     size='sm'
-                                    className='text-xs border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400'
+                                    className='text-xs border-amber-300 text-amber-700 hover:bg-amber-100 hover:text-amber-800 hover:border-amber-400 active:bg-amber-200 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-900/30 dark:hover:text-amber-300 dark:active:bg-amber-900/50'
                                     onClick={() => handleUpdateUserRole(u.uid, 'customer')}
                                   >
                                     <ShieldAlert className='h-3.5 w-3.5 mr-1' />
@@ -852,7 +857,7 @@ const handleVideoFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
                                   <Button
                                     variant='outline'
                                     size='sm'
-                                    className='text-xs border-green-200 text-green-700 hover:bg-green-50 dark:border-green-700 dark:text-green-400'
+                                    className='text-xs border-green-300 text-green-700 hover:bg-green-100 hover:text-green-800 hover:border-green-400 active:bg-green-200 dark:border-green-700 dark:text-green-400 dark:hover:bg-green-900/30 dark:hover:text-green-300 dark:active:bg-green-900/50'
                                     onClick={() => handleUpdateUserRole(u.uid, 'admin')}
                                   >
                                     <ShieldCheck className='h-3.5 w-3.5 mr-1' />

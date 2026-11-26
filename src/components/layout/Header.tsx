@@ -219,7 +219,8 @@ export function Header() {
           <button
             onClick={() => setMobileOpen((v) => !v)}
             aria-label="Toggle menu"
-            className="lg:hidden h-9 w-9 flex items-center justify-center rounded-md border border-cec-gray-bd hover:bg-cec-gray-lt transition-colors"
+            // className="lg:hidden h-9 w-9 flex items-center justify-center rounded-md border border-cec-gray-bd hover:bg-cec-gray-lt transition-colors"
+            className="lg:hidden h-9 w-9 flex items-center justify-center rounded-md border border-cec-gray-bd text-cec-charcoal hover:bg-cec-gray-lt transition-colors"
           >
             {mobileOpen ? (
               <X className="h-4 w-4" />
@@ -239,6 +240,7 @@ export function Header() {
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="lg:hidden overflow-hidden border-t border-cec-gray-bd bg-white"
+            // className="lg:hidden h-9 w-9 flex items-center justify-center rounded-md border border-cec-gray-bd text-cec-charcoal hover:bg-cec-gray-lt transition-colors"
           >
             <nav className="container py-3 flex flex-col gap-0.5">
               {NAV_LINKS.map((item) => {

@@ -16,7 +16,7 @@ export interface GuideDontItem {
 
 export interface AdminGuideItem {
   id: string;
-  category: "lighting" | "breakers" | "solar" | "wiring" | "general";
+  category: string;
   title: string;
   videoTitle: string;
   videoEmbedUrl: string;

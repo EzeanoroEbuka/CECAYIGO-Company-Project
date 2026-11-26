@@ -8,6 +8,8 @@ import {
   signOut as firebaseSignOut,
   updateProfile,
   User as FirebaseUser,
+  sendEmailVerification, 
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
@@ -37,9 +39,17 @@ interface AuthContextType {
   /** Admin only. */
   getAllUsers: () => Promise<UserProfile[]>;
   /** Admin only: create a new account (admin or customer) with a temporary password. */
-  createUser: (input: { name: string; email: string; password: string; role: Role }) => Promise<void>;
+  createUser: (input: { name: string; email: string; password: string; role: Role }) => Promise<boolean>;
   /** Re-reads the profile (e.g. after the password was changed). */
   refreshProfile: () => Promise<void>;
+    /** True once the signed-in person has clicked the link in their verification email. */
+  emailVerified: boolean;
+  /** Sends (or re-sends) the verification email to the signed-in person. */
+  resendVerification: () => Promise<void>;
+  /** Re-checks with Firebase whether the email has been verified yet. */
+  checkEmailVerified: () => Promise<boolean>;
+  /** Sends a password-reset email. */
+  resetPassword: (email: string) => Promise<void>;
 }
 
 
@@ -62,6 +72,10 @@ const AuthContext = createContext<AuthContextType>({
   getAllUsers: async () => [],
   createUser: noop,
   refreshProfile: noop,
+  emailVerified: false,
+  resendVerification: noop,
+  checkEmailVerified: async () => false,
+  resetPassword: noop,
 });
 
 const profileFromToken = async (fbUser: FirebaseUser, phone?: string): Promise<UserProfile> => {
@@ -111,6 +125,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [emailVerified, setEmailVerified] = useState(false);
 
   useEffect(() => {
 
@@ -119,9 +134,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         if (currentUser && !currentUser.isAnonymous) {
           setUser(currentUser);
+          setEmailVerified(currentUser.emailVerified);
           setProfile(await loadProfile(currentUser));
         } else {
           setUser(null);
+          setEmailVerified(false);
           setProfile(null);
           // Guests still get a background anonymous session so the cart and checkout keep working
           if (!currentUser) signInAnonymously(auth).catch(() => {});
@@ -142,6 +159,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const prof = await loadProfile(res.user);
     localStorage.setItem(ACTIVITY_KEY, String(Date.now())); // fresh session = active now
     setUser(res.user);
+    setEmailVerified(res.user.emailVerified);
     setProfile(prof);
     toast.success(`Welcome back, ${prof.displayName || "Customer"}!`);
     return prof;
@@ -151,11 +169,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Self-registration ALWAYS creates a customer. Admins can only be made by other admins.
     const res = await createUserWithEmailAndPassword(auth, email.trim(), password);
     if (name.trim()) await updateProfile(res.user, { displayName: name.trim() });
+        // Ask Firebase to email a verification link (failure here must not block sign-up)
+    try { await sendEmailVerification(res.user); } catch (e) { console.warn("Verification email failed:", e); }
+
     const prof = await loadProfile(res.user, phone?.trim());
     localStorage.setItem(ACTIVITY_KEY, String(Date.now())); // fresh session = active now
     setUser(res.user);
     setProfile(prof);
-    toast.success("Account created successfully!");
+    toast.success("Account created! Check your email for a verification link.");
     return prof;
   };
 
@@ -195,9 +216,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return data.users as UserProfile[];
   };
 
-  const createUser = async (input: { name: string; email: string; password: string; role: Role }) => {
+  const createUser = async (input: { name: string; email: string; password: string; role: Role }): Promise<boolean> => {
     const res = await authFetch("/api/admin/users", { method: "POST", body: JSON.stringify(input) });
     if (!res.ok) throw await apiError(res, "Could not create the account");
+    const data = await res.json().catch(() => ({}));
+    return !!data.verificationEmailSent;
+  };
+
+
+    const resendVerification = async () => {
+    const current = auth.currentUser;
+    if (!current || current.isAnonymous) throw new Error("Please sign in first.");
+    await sendEmailVerification(current);
+  };
+
+  const checkEmailVerified = async () => {
+    const current = auth.currentUser;
+    if (!current || current.isAnonymous) return false;
+    await current.reload();
+    await current.getIdToken(true); // so the server also sees the verified email
+    setEmailVerified(current.emailVerified);
+    return current.emailVerified;
+  };
+
+  const resetPassword = async (email: string) => {
+    await sendPasswordResetEmail(auth, email.trim());
   };
 
 
@@ -246,7 +289,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <AuthContext.Provider
-      value={{ user, profile, isAdmin, loading, signIn, signUp, signOut, updateUserRole, getAllUsers, createUser, refreshProfile }}
+      value={{ user, profile, isAdmin, loading, signIn, signUp, signOut, updateUserRole, getAllUsers, createUser, refreshProfile, emailVerified, resendVerification, checkEmailVerified, resetPassword }}
     >
       {children}
     </AuthContext.Provider>

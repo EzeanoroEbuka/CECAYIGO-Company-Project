@@ -16,16 +16,20 @@ interface LayoutProps {
 /** Everything inside the providers: decides what each visitor is allowed to see. */
 function AppShell({ children }: LayoutProps) {
   const router = useRouter();
-  const { isAdmin, profile, loading } = useAuth();
+  const { user, isAdmin, profile, loading, emailVerified } = useAuth();
   const isAdminPage = router.pathname.startsWith("/admin");
 
-  // Accounts with a temporary password (e.g. the seeded admin) must choose their own first.
+  // 1) Everyone must verify their email first. 2) Accounts with a temporary password must then choose their own.
+  const needsVerification = !!user && !emailVerified;
   const mustChangePassword = !!profile?.mustChangePassword;
   useEffect(() => {
-    if (mustChangePassword && router.pathname !== "/account/security") {
+    if (loading) return;
+    if (needsVerification) {
+      if (router.pathname !== "/verify-email") router.replace("/verify-email");
+    } else if (mustChangePassword && router.pathname !== "/account/security") {
       router.replace("/account/security");
     }
-  }, [mustChangePassword, router.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [loading, needsVerification, mustChangePassword, router.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
   let content: React.ReactNode = children;
   if (isAdminPage) {

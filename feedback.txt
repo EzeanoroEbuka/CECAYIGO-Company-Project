@@ -1,0 +1,14 @@
+1. Admin Revoke button color on Hover
+2. Make Admin button color on Hover
+3. Customer button on hover
+4. admin button on hover
+5. The handburger menu turns almost white when in dark toggle
+
+
+6. create admin or customer dosen't verify  emails
+7. Video guide category dosen't cover all the available categories e.g solar camera or fan 
+8. forget pasword button for admin and customer
+9. in mobile view of the product in admin dashboard the green label in stock in broken
+   in is above while stock is below, they should remain on the same line together even in mobile view
+10. I want the toggle button to look like a floodlight and give the effect when toggled 
+   like your turn on a floodlight and on dark mode it act like you turn off one

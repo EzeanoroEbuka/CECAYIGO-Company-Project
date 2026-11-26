@@ -28,5 +28,10 @@ export async function requireAdmin(
     res.status(403).json({ error: "Admin access required." });
     return null;
   }
+
+  if (!caller.email_verified) {
+    res.status(403).json({ error: "Please verify your email address first." });
+    return null;
+  }
   return caller;
 }

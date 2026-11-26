@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { guideService, AdminGuideItem } from "@/services/guideService";
 import { resolveVideo } from "@/lib/videoUrl";
+import { GUIDE_CATEGORIES, guideCategoryLabel } from "@/lib/guideCategories";
 
 
 export default function GuidesAndVideosPage() {
@@ -33,15 +34,8 @@ export default function GuidesAndVideosPage() {
     }).catch(() => setLoading(false));
   }, []);
 
-  const categories = [
-    { id: "all", label: "All Guides" },
-    { id: "lighting", label: "LED & Floodlights" },
-    { id: "breakers", label: "Smart Breakers & DB" },
-    { id: "solar", label: "Solar Inverters" },
-    { id: "wiring", label: "Wiring & Cables" },
-    { id: "general", label: "General Safety" },
-  ];
-
+  const categories = [{ id: "all", label: "All Guides" }, ...GUIDE_CATEGORIES];
+ 
   const filteredGuides = selectedCategory === "all" 
     ? guides 
     : guides.filter(g => g.category === selectedCategory);
@@ -143,7 +137,7 @@ export default function GuidesAndVideosPage() {
                         <div>
                           <div className="flex items-center gap-2 mb-2">
                             <Badge className="bg-brand-blue/20 text-brand-blue-dark text-brand-blue hover:bg-brand-blue/30 border-none font-semibold text-xs">
-                              {guide.category.toUpperCase()}
+                              {guideCategoryLabel(guide.category).toUpperCase()}
                             </Badge>
                             <span className="text-xs text-gray-500 flex items-center gap-1 font-medium">
                               <Zap className="h-3.5 w-3.5 text-brand-red" /> Verified Engineering Guide
